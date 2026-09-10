@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Información Global · Cobertura Mundial</title>
+<meta name="description" content="Portal informativo global para estudiantes: diarios, entrevistas y noticieros sobre medio ambiente, paz, desarrollo sostenible y derechos humanos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- =====================================================================
+     APLICACIÓN SERVIDA POR NODE
+     - Abrí esta página mediante "npm start"; no la abras con doble clic.
+     - El contenido editorial se carga y guarda en el backend.
+     - Cada bloque editable tiene un comentario "EDITA AQUÍ".
+     ===================================================================== -->
+
+<style>
+  :root {
+    --azul-marino: #0b1f3a;
+    --azul-marino-osc: #081527;
+    --azul-tarjeta: #102a52;
+    --cian: #29d3e8;
+    --cian-osc: #17b8cc;
+    --fondo: #f4f6fb;
+    --texto: #14213d;
+    --texto-suave: #5a6785;
+    --blanco: #ffffff;
+    --borde: #e2e6f0;
+    --fuente-display: "Poppins", "Segoe UI", sans-serif;
+    --fuente-texto: "Inter", "Segoe UI", sans-serif;
+    --radio: 14px;
+    --sombra: 0 10px 30px rgba(11, 31, 58, 0.08);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: var(--fuente-texto); color: var(--texto); background: var(--fondo); line-height: 1.5; }
+  a { color: inherit; text-decoration: none; }
+  img, svg { display: block; max-width: 100%; }
+  :focus-visible { outline: 3px solid var(--cian); outline-offset: 2px; }
+  .progreso-lectura { position: fixed; top: 0; left: 0; z-index: 100; width: 100%; height: 3px; background: var(--cian); box-shadow: 0 0 12px rgba(41,211,232,.8); transform: scaleX(0); transform-origin: left; will-change: transform; }
+  .revelar { opacity: 0; transform: translateY(18px); transition: opacity .65s ease, transform .65s ease; }
+  .revelar.visible { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .revelar { opacity: 1; transform: none; }
+  }
+
+  .encabezado { position: sticky; top: 0; z-index: 50; background: var(--azul-marino); border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .encabezado__interior { position: relative; max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 28px; }
+  .sello-contenedor { flex: 0 0 auto; position: relative; display: flex; align-items: center; }
+  .sello { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; background: var(--azul-marino-osc); transform: rotate(0deg); transition: transform 2.6s cubic-bezier(.4,0,.2,1); }
+  .sello-contenedor:hover .sello { transform: rotate(180deg); }
+  .sello-texto { position: absolute; left: 100%; top: 50%; margin-left: 14px; white-space: nowrap; font-family: var(--fuente-display); font-style: italic; font-weight: 700; font-size: .8rem; letter-spacing: .4px; color: #0a0a0a; text-shadow: 0 0 6px rgba(255,255,255,.35); opacity: 0; pointer-events: none; transform: translate(-24px, -50%); transition: transform 2.6s cubic-bezier(.4,0,.2,1), opacity 2.6s ease; }
+  .sello-contenedor:hover .sello-texto { opacity: 1; transform: translate(0, -50%); }
+  @media (max-width: 860px) { .sello-texto { display: none; } }
+  .menu-boton { flex: 0 0 auto; margin-left: auto; width: 44px; height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: transparent; border: 1.5px solid rgba(255,255,255,.35); border-radius: 10px; cursor: pointer; transition: border-color .2s ease; }
+  .menu-boton span { display: block; width: 22px; height: 2px; border-radius: 2px; background: var(--blanco); transition: transform .2s ease, opacity .2s ease, background .2s ease; }
+  .menu-boton[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .menu-boton[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .menu-boton[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .menu-boton:hover { border-color: var(--cian); }
+  .menu-boton:hover span { background: var(--cian); }
+
+  .menu-navegacion { position: absolute; top: calc(100% + 10px); right: 24px; min-width: 220px; display: flex; flex-direction: column; gap: 2px; padding: 8px; background: var(--azul-marino-osc); border: 1px solid rgba(255,255,255,.12); border-radius: 14px; box-shadow: 0 20px 44px rgba(0,0,0,.4); z-index: 60; opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity .18s ease, transform .18s ease, visibility .18s; }
+  .menu-navegacion.abierto { opacity: 1; visibility: visible; transform: translateY(0); }
+
+  .nav-boton { display: block; width: 100%; text-align: left; font-family: var(--fuente-display); font-weight: 600; font-size: .85rem; letter-spacing: .4px; color: var(--blanco); background: transparent; border: none; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: background .15s ease, color .15s ease; }
+  .nav-boton:hover { background: rgba(255,255,255,.08); color: var(--cian); }
+  .nav-boton[aria-current="true"] { background: var(--cian); color: var(--azul-marino-osc); }
+
+  .contenedor { max-width: 1240px; margin: 0 auto; padding: 48px 24px; }
+  .contenedor--angosto { max-width: 820px; }
+  .titulo-seccion { font-family: var(--fuente-display); font-weight: 700; font-size: 1.5rem; margin: 0 0 18px; }
+  .barra-progreso { height: 4px; border-radius: 4px; background: var(--borde); overflow: hidden; margin-bottom: 32px; }
+  .barra-progreso span { display: block; height: 100%; width: 55%; background: linear-gradient(90deg, var(--azul-marino) 0%, var(--cian) 100%); }
+  .fecha { display: block; font-size: .78rem; color: var(--texto-suave); margin-top: 8px; }
+
+  .intro-texto { font-size: 1.05rem; color: var(--texto-suave); line-height: 1.7; margin: 0; }
+  #inicio { position: relative; overflow: hidden; background: linear-gradient(135deg, #f4f6fb 0%, #ffffff 58%, #e5f9fc 100%); }
+  #inicio::after { content: ""; position: absolute; width: 280px; height: 280px; right: -110px; top: 18%; border: 1px solid rgba(23,184,204,.18); border-radius: 50%; box-shadow: 0 0 0 28px rgba(23,184,204,.05), 0 0 0 56px rgba(23,184,204,.035); pointer-events: none; }
+  #inicio .contenedor { position: relative; z-index: 1; }
+
+  [id] { scroll-margin-top: 96px; }
+  .franja-alterna { background: var(--blanco); border-top: 1px solid var(--borde); border-bottom: 1px solid var(--borde); }
+  .bloque-seccion { content-visibility: auto; contain-intrinsic-size: 1px 520px; }
+
+  .rejilla-recursos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; margin-top: 24px; align-items: stretch; }
+  .tarjeta-recurso {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 320px;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    overflow: hidden;
+    box-shadow: var(--sombra);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .tarjeta-recurso:hover, .tarjeta-recurso:focus-within { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(11,31,58,.14); }
+  .tarjeta-recurso__imagen { display: block; position: relative; height: 0; padding-top: 56.25%; overflow: hidden; background-color: var(--azul-tarjeta); cursor: pointer; }
+  .tarjeta-recurso__imagen img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    transition: transform .35s ease, filter .35s ease;
+  }
+  .tarjeta-recurso:hover .tarjeta-recurso__imagen img,
+  .tarjeta-recurso:focus-within .tarjeta-recurso__imagen img { transform: scale(1.08); filter: saturate(1.12); }
+  .tarjeta-recurso__enlace { position: absolute; top: 10px; right: 10px; font-family: var(--fuente-display); font-size: .65rem; font-weight: 600; letter-spacing: .4px; color: var(--azul-marino-osc); background: var(--cian); border-radius: 999px; padding: 4px 10px; z-index: 1; }
+  .tarjeta-recurso__descripcion {
+    margin: 0;
+    padding: 10px 12px 12px;
+    font-size: .85rem;
+    color: var(--texto-suave);
+    display: flex;
+    align-items: center;
+    flex: 1;
+    line-height: 1.45;
+  }
+
+  .rejilla-diarios { gap: 28px 30px; }
+  .rejilla-diarios .tarjeta-recurso__descripcion {
+    height: 64px;
+    min-height: 64px;
+    max-height: 64px;
+    overflow: hidden;
+  }
+
+  .carrusel-envoltorio { position: relative; margin-top: 24px; }
+  .carrusel-entrevistas {
+    display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth; -webkit-overflow-scrolling: touch;
+    padding: 30px 20%; scrollbar-width: none;
+    mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+  }
+  .carrusel-entrevistas::-webkit-scrollbar { display: none; }
+  .carrusel-entrevistas .tarjeta-entrevista { flex: 0 0 60%; max-width: 560px; scroll-snap-align: center; transition: transform .35s ease, opacity .35s ease, filter .35s ease; }
+  .carrusel-flecha {
+    position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%;
+    background: var(--azul-marino); color: var(--blanco); border: 1px solid rgba(255,255,255,.2);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 5;
+    box-shadow: var(--sombra); font-size: 1.1rem; transition: background .2s ease;
+  }
+  .carrusel-flecha:hover { background: var(--cian-osc); }
+  .carrusel-flecha--prev { left: 0; }
+  .carrusel-flecha--next { right: 0; }
+  .tarjeta-entrevista { display: flex; flex-direction: column; height: 100%; background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio); overflow: hidden; box-shadow: var(--sombra); }
+  .tarjeta-entrevista__preview { position: relative; height: 0; padding-top: 56.25%; background: var(--azul-marino-osc); overflow: hidden; }
+  .tarjeta-entrevista__preview video,
+  .tarjeta-entrevista__preview img { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; object-fit: cover; }
+  .tarjeta-entrevista__badge { position: absolute; bottom: 10px; left: 10px; font-family: var(--fuente-display); font-size: .65rem; font-weight: 600; letter-spacing: .4px; color: var(--blanco); background: rgba(11,31,58,.75); border-radius: 999px; padding: 4px 10px; }
+  .tarjeta-entrevista__info { flex: 1; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .tarjeta-entrevista__info h3 { font-family: var(--fuente-display); font-size: 1rem; margin: 0; font-weight: 700; }
+  .boton-acceso { flex: 0 0 auto; font-family: var(--fuente-display); font-weight: 600; font-size: .78rem; color: var(--blanco); background: var(--azul-marino); border-radius: 999px; padding: 10px 18px; transition: background .2s ease; }
+  .boton-acceso:hover { background: var(--cian-osc); }
+
+  .tema-top-secret { --rojo: #d21f2f; --rojo-osc: #7c0f18; position: relative; background: #0a0a0a; color: #f2f2f2; overflow: hidden; }
+  .tema-top-secret::before {
+    content: ""; position: absolute; top: -20px; left: -20px; right: -20px; bottom: -20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='220'%3E%3Ctext x='-40' y='120' transform='rotate(-24 210 110)' font-family='Poppins, sans-serif' font-size='34' font-weight='700' letter-spacing='6' fill='%23d21f2f' fill-opacity='0.16'%3ECLASSIFIED   CLASSIFIED%3C/text%3E%3C/svg%3E");
+    background-repeat: repeat; pointer-events: none; z-index: 0;
+  }
+  .tema-top-secret .contenedor { position: relative; z-index: 1; }
+  .tema-top-secret .titulo-seccion { color: #ffffff; }
+  .top-secret__texto { font-size: 1rem; line-height: 1.7; margin: 0 0 28px; color: #c9c9c9; }
+  .boton-top-secret {
+    display: inline-block; font-family: var(--fuente-display); font-weight: 700; font-size: 1rem; letter-spacing: .4px;
+    color: #ffffff; background: linear-gradient(90deg, var(--rojo-osc) 0%, var(--rojo) 100%);
+    border: 1px solid rgba(255,255,255,0.15); border-radius: 999px; padding: 18px 38px;
+    box-shadow: 0 14px 34px rgba(210,31,47,.35); transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .boton-top-secret:hover, .boton-top-secret:focus-visible { transform: translateY(-2px); box-shadow: 0 18px 40px rgba(210,31,47,.5); }
+
+  .oculto-top-secret { display: none !important; }
+  .pie { background: var(--azul-marino-osc); color: #aab6d1; padding: 30px 24px; text-align: center; font-size: .8rem; position: relative; z-index: 1; }
+
+  .carrusel-diarios { display: flex; flex-direction: column; gap: 28px; margin-top: 24px; }
+  .diario-carrusel { position: relative; }
+  .diario-carrusel .tarjeta-recurso { min-height: 0; }
+  .diario-carrusel__flecha { position: absolute; top: 50%; transform: translateY(-50%); z-index: 3; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; background: var(--azul-marino); color: var(--blanco); font-size: 1.1rem; cursor: pointer; box-shadow: var(--sombra); transition: background .2s ease; }
+  .diario-carrusel__flecha:hover { background: var(--cian-osc); }
+  .diario-carrusel__flecha--prev { left: 0; }
+  .diario-carrusel__flecha--next { right: 0; }
+  .diario-carrusel__pista { display: flex; gap: 24px; overflow-x: auto; overflow-y: hidden; padding: 30px 20%; scroll-behavior: smooth; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: var(--radio); }
+  .diario-carrusel__pista::-webkit-scrollbar { display: none; }
+  .diario-carrusel__pista .tarjeta-recurso { flex: 0 0 60%; max-width: 560px; scroll-snap-align: center; transition: transform .35s ease, opacity .35s ease, filter .35s ease; }
+  .noticiero-preview { position: relative; height: 0; padding-top: 56.25%; overflow: hidden; background: var(--azul-tarjeta); }
+  .noticiero-preview img, .noticiero-preview video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .noticiero-preview video { display: none; }
+  .tarjeta-recurso:hover .noticiero-preview video, .tarjeta-recurso:focus-within .noticiero-preview video { display: block; }
+  .tarjeta-recurso:hover .noticiero-preview img, .tarjeta-recurso:focus-within .noticiero-preview img { opacity: 0; }
+  .diario-carrusel[data-diario="noticieros"] .tarjeta-recurso__descripcion { height: 79px; min-height: 79px; max-height: 79px; padding: 18px 20px; overflow: hidden; }
+
+  .overlay-admin { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(8,15,27,.72); }
+  .overlay-admin.abierto { display: flex; }
+  .caja-admin { position: relative; width: 100%; max-width: 720px; max-height: 88vh; overflow-y: auto; padding: 28px; background: var(--blanco); border-radius: var(--radio); box-shadow: 0 30px 60px rgba(0,0,0,.35); }
+  .caja-admin--login { max-width: 380px; }
+  .caja-admin h3 { font-family: var(--fuente-display); margin: 0 0 6px; font-size: 1.2rem; }
+  .caja-admin p.ayuda { color: var(--texto-suave); font-size: .85rem; margin: 0 0 20px; }
+  .cerrar-admin { position: absolute; top: 14px; right: 14px; border: 0; background: transparent; color: var(--texto-suave); font-size: 1.4rem; cursor: pointer; }
+  .campo-admin { margin-bottom: 16px; }
+  .campo-admin label { display: block; margin-bottom: 6px; font-family: var(--fuente-display); font-weight: 600; font-size: .8rem; }
+  .campo-admin input, .campo-admin select, .campo-admin textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--borde); border-radius: 8px; background: var(--fondo); font: .85rem var(--fuente-texto); }
+  .campo-admin textarea { min-height: 70px; resize: vertical; }
+  .campo-admin small { display: block; margin-top: 6px; color: var(--texto-suave); font-size: .75rem; }
+  .fila-admin, .acciones-admin-final { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  .boton-admin { padding: 11px 20px; border: 0; border-radius: 999px; font: 600 .82rem var(--fuente-display); cursor: pointer; }
+  .boton-admin--principal { color: var(--blanco); background: var(--azul-marino); }
+  .boton-admin--principal:hover { background: var(--cian-osc); }
+  .boton-admin--secundario { color: var(--texto); background: var(--fondo); border: 1px solid var(--borde); }
+  .boton-admin--peligro { color: #b3261e; background: #fdeceb; }
+  .pestanias-admin { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+  .pestania-admin { padding: 9px 16px; border: 1px solid var(--borde); border-radius: 999px; color: var(--texto-suave); background: var(--blanco); font: 600 .78rem var(--fuente-display); cursor: pointer; }
+  .pestania-admin[aria-selected="true"] { color: var(--blanco); background: var(--azul-marino); border-color: var(--azul-marino); }
+  .lista-admin { display: flex; flex-direction: column; gap: 10px; max-height: 260px; overflow-y: auto; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--borde); }
+  .item-admin { display: flex; align-items: center; gap: 12px; padding: 8px 10px; border: 1px solid var(--borde); border-radius: 10px; }
+  .item-admin img { width: 56px; height: 40px; object-fit: cover; border-radius: 6px; background: var(--azul-tarjeta); }
+  .item-admin__texto { flex: 1; min-width: 0; overflow: hidden; color: var(--texto-suave); font-size: .8rem; text-overflow: ellipsis; white-space: nowrap; }
+  .item-admin__acciones { display: flex; gap: 6px; }
+  .aviso-admin { margin-bottom: 16px; padding: 10px 14px; border: 1px solid #cfe6fb; border-radius: 10px; color: #14507d; background: #eef7ff; font-size: .78rem; }
+  .boton-pie-admin { display: block; margin: 12px auto 0; padding: 3px 7px; border: 1px solid transparent; border-radius: 5px; color: rgba(170,182,209,.45); background: transparent; font: 500 .62rem var(--fuente-texto); cursor: pointer; opacity: .55; }
+  .boton-pie-admin:hover, .boton-pie-admin:focus-visible { color: var(--cian); border-color: rgba(41,211,232,.35); opacity: 1; }
+
+  @media (max-width: 980px) {
+    .rejilla-recursos { grid-template-columns: repeat(2, 1fr); }
+    .rejilla-diarios { grid-template-columns: 1fr; }
+    .carrusel-entrevistas { padding: 28px 12%; }
+    .carrusel-entrevistas .tarjeta-entrevista { flex-basis: 75%; }
+    .diario-carrusel__pista { padding: 28px 12%; }
+    .diario-carrusel[data-diario="noticieros"] .diario-carrusel__pista .tarjeta-recurso { flex-basis: 75%; }
+    .diario-carrusel[data-diario="noticieros"] .tarjeta-recurso__descripcion { height: 166px; min-height: 166px; max-height: 166px; }
+  }
+  @media (max-width: 640px) {
+    .menu-navegacion { right: 16px; left: 16px; min-width: 0; }
+    .rejilla-recursos { grid-template-columns: 1fr; }
+    .rejilla-diarios { grid-template-columns: 1fr; }
+    .rejilla-recursos .tarjeta-recurso,
+    .rejilla-diarios .tarjeta-recurso {
+      height: 260px;
+      min-height: 0;
+    }
+    .rejilla-recursos .tarjeta-recurso__descripcion {
+      min-height: 0;
+      overflow: hidden;
+    }
+    .carrusel-entrevistas { padding: 20px 6%; gap: 16px; }
+    .carrusel-entrevistas .tarjeta-entrevista { flex-basis: 88%; }
+    .diario-carrusel__pista { padding: 20px 6%; gap: 16px; }
+    .diario-carrusel__pista .tarjeta-recurso { flex-basis: 88%; }
+    .diario-carrusel[data-diario="noticieros"] .diario-carrusel__pista .tarjeta-recurso { flex-basis: 88%; }
+    .diario-carrusel[data-diario="noticieros"] .tarjeta-recurso__descripcion { height: 166px; min-height: 166px; max-height: 166px; }
+    .carrusel-flecha { display: none; }
+    .contenedor { padding: 32px 16px; }
+    .boton-top-secret { width: 100%; text-align: center; }
+    .caja-admin { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="progreso-lectura" aria-hidden="true"></div>
+
+  <!-- ============ ENCABEZADO / MENÚ ============ -->
+  <header class="encabezado">
+    <div class="encabezado__interior">
+      <a class="sello-contenedor" href="#inicio" aria-label="Ir al inicio">
+        <img class="sello" alt="Información Global · Cobertura Mundial" src="sello.png" width="64" height="64" decoding="async" fetchpriority="high">
+        <span class="sello-texto" aria-hidden="true">Veritas nunquam perit</span>
+      </a>
+      <!-- EDITA AQUÍ: para cambiar el logo, reemplazá sello.png en la misma carpeta. -->
+
+      <button type="button" class="menu-boton" aria-expanded="false" aria-controls="menu-navegacion" aria-label="Abrir menú de secciones">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="menu-navegacion" id="menu-navegacion" aria-label="Secciones del sitio">
+        <a class="nav-boton" href="#inicio" data-seccion="inicio" aria-current="true">Inicio</a>
+        <a class="nav-boton" href="#diarios" data-seccion="diarios">Diarios</a>
+        <a class="nav-boton" href="#entrevistas" data-seccion="entrevistas">Entrevistas</a>
+        <a class="nav-boton oculto-top-secret" href="#top-secret" data-seccion="top-secret">Top Secret</a>
+        <a class="nav-boton" href="#noticieros" data-seccion="noticieros">Noticieros</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+  <!-- ============ INICIO: solo introducción ============ -->
+  <section id="inicio" class="revelar">
+    <div class="contenedor contenedor--angosto">
+      <h1 class="titulo-seccion">Bienvenidos a Información Global</h1>
+      <div class="barra-progreso"><span></span></div>
+      <!-- EDITA AQUÍ: texto de introducción -->
+      <p class="intro-texto">Poronga un espacio de cobertura mundial pensado para acercarles, de forma simple, la actualidad internacional. Van a encontrar diarios con la información completa de cada tema, entrevistas en video a especialistas y protagonistas, una sección Top Secret con documentos reservados, y noticieros con el resumen audiovisual de la semana. Usen los botones del encabezado para moverse directamente a cada sección.</p>
+    </div>
+  </section>
+
+  <!-- ============ DIARIOS (incluye lo que antes era "últimas noticias") ============ -->
+  <div class="franja-alterna bloque-seccion">
+    <section class="contenedor" id="diarios" aria-labelledby="titulo-diarios">
+      <h2 class="titulo-seccion" id="titulo-diarios">Diarios</h2>
+      <div class="barra-progreso"><span style="width:45%"></span></div>
+
+      <!-- EDITA AQUÍ: cada diario es una imagen (pegá la portada en el src del <img>)
+           que funciona como link (cambiá el href del <a>) + un texto breve debajo.
+           Copiá un bloque <article class="tarjeta-recurso"> completo para agregar más. -->
+      <div class="carrusel-diarios" id="grid-diarios"></div>
+    </section>
+  </div>
+
+  <!-- ============ ENTREVISTAS: vista previa de 5s + botón junto al texto ============ -->
+  <section class="contenedor bloque-seccion" id="entrevistas" aria-labelledby="titulo-entrevistas">
+    <h2 class="titulo-seccion" id="titulo-entrevistas">Entrevistas</h2>
+    <div class="barra-progreso"><span style="width:30%"></span></div>
+
+    <!-- EDITA AQUÍ: "poster" es la imagen de portada del video, y dentro de <source src="..."> va
+         el link a un video corto (mp4) para la vista previa. El video se reproduce solo, en silencio,
+         en bucle, y se corta a los primeros 5 segundos automáticamente. Deslizá hacia los costados
+         (o usá las flechas) para pasar de una entrevista a otra. -->
+    <div class="carrusel-envoltorio">
+      <button type="button" class="carrusel-flecha carrusel-flecha--prev" aria-label="Entrevista anterior">‹</button>
+      <div class="carrusel-entrevistas" id="grid-entrevistas" data-dinamico="true"></div>
+      <button type="button" class="carrusel-flecha carrusel-flecha--next" aria-label="Entrevista siguiente">›</button>
+    </div>
+  </section>
+
+  <!-- ============ TOP SECRET: botón grande + fondo CLASSIFIED, abre una pestaña aparte ============ -->
+  <!-- Oculto por defecto: solo se muestra si se ingresa el código de acceso (ver el script al final) -->
+  <div class="franja-alterna tema-top-secret oculto-top-secret bloque-seccion">
+    <section class="contenedor contenedor--angosto" id="top-secret" aria-labelledby="titulo-top-secret">
+      <h2 class="titulo-seccion" id="titulo-top-secret">Top Secret</h2>
+      <!-- EDITA AQUÍ: texto de presentación -->
+      <p class="top-secret__texto">Documentos e informes reservados sobre negociaciones y decisiones internacionales. El acceso completo se abre en una pestaña aparte, exclusiva para contenido Top Secret.</p>
+      <!-- EDITA AQUÍ: el botón abre, en una pestaña nueva, el archivo "pagina-independiente-top-secret_1.html"
+           que va junto a este. Si preferís que lleve a un sitio externo, reemplazá el href por esa URL. -->
+      <a class="boton-top-secret" href="pagina-independiente-top-secret_1.html" target="_blank" rel="noopener noreferrer">
+        Acceder a Top Secret ↗
+      </a>
+    </section>
+  </div>
+
+  <!-- ============ NOTICIEROS ============ -->
+  <section class="contenedor bloque-seccion" id="noticieros" aria-labelledby="titulo-noticieros">
+    <h2 class="titulo-seccion" id="titulo-noticieros">Noticieros</h2>
+    <div class="barra-progreso"><span style="width:20%"></span></div>
+
+    <!-- EDITA AQUÍ -->
+    <div class="rejilla-recursos" id="grid-noticieros"></div>
+  </section>
+  </main>
+
+  <footer class="pie">
+    INFORMACIÓN GLOBAL · COBERTURA MUNDIAL · Septiembre, 2026 · Contenido editorial de solo lectura
+    <button type="button" class="boton-pie-admin" id="boton-abrir-admin" aria-label="Abrir acceso editorial">Acceso editorial</button>
+  </footer>
+
+  <div class="overlay-admin" id="overlay-login-admin">
+    <div class="caja-admin caja-admin--login">
+      <button type="button" class="cerrar-admin" data-cerrar-admin aria-label="Cerrar">×</button>
+      <h3>Acceso al panel</h3>
+      <p class="ayuda">Ingresá el correo autorizado y la contraseña para administrar el contenido.</p>
+      <form id="form-login-admin">
+        <div class="campo-admin"><label for="input-correo-admin">Correo de confirmación</label><input type="email" id="input-correo-admin" required autocomplete="email" placeholder="tu correo autorizado"></div>
+        <div class="campo-admin"><label for="input-clave-admin">Contraseña</label><input type="password" id="input-clave-admin" required autocomplete="current-password"></div>
+        <p id="error-login-admin" style="color:#b3261e;font-size:.8rem;min-height:1em;margin:0 0 12px;"></p>
+        <button type="submit" class="boton-admin boton-admin--principal" style="width:100%;">Ingresar</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="overlay-admin" id="overlay-panel-admin">
+    <div class="caja-admin">
+      <button type="button" class="cerrar-admin" data-cerrar-admin aria-label="Cerrar">×</button>
+      <h3>Panel de administración</h3>
+      <p class="ayuda">Elegí qué subir o modificar, la imagen, el link al archivo y el texto de cada tarjeta.</p>
+      <div class="aviso-admin">Los cambios quedan guardados en el servidor y quedan disponibles para todos los visitantes autorizados.</div>
+      <div class="pestanias-admin" role="tablist">
+        <button type="button" class="pestania-admin" data-tipo="diarios" aria-selected="true">Diarios</button>
+        <button type="button" class="pestania-admin" data-tipo="noticieros" aria-selected="false">Noticieros</button>
+        <button type="button" class="pestania-admin" data-tipo="entrevistas" aria-selected="false">Entrevistas</button>
+      </div>
+      <div class="pestanias-admin" id="pestanias-carrusel-diarios" role="tablist" aria-label="Carruseles de diarios">
+        <button type="button" class="pestania-admin" data-carrusel="0" aria-selected="true">Carrusel 1</button>
+        <button type="button" class="pestania-admin" data-carrusel="1" aria-selected="false">Carrusel 2</button>
+        <button type="button" class="pestania-admin" data-carrusel="2" aria-selected="false">Carrusel 3</button>
+      </div>
+      <form id="form-item-admin">
+        <h4 id="titulo-form-item" style="font-family:var(--fuente-display);margin:0 0 14px;">Agregar nueva tarjeta</h4>
+        <div class="campo-admin">
+          <label for="input-imagen-url">Imagen a insertar</label>
+          <input type="text" id="input-imagen-url" placeholder="URL o nombre del archivo">
+          <input type="file" id="input-imagen-archivo" accept="image/*" style="margin-top:8px">
+          <small>Podés pegar una URL o subir una imagen. Para un carrusel de Diario, separá varias URLs con saltos de línea.</small>
+        </div>
+        <div class="campo-admin" id="campo-video-admin" hidden><label for="input-video-admin">Video de previsualización (Noticieros)</label><input type="text" id="input-video-admin" placeholder="URL o nombre del archivo MP4"><small>Se reproducen automáticamente solo los primeros 5 segundos al pasar el mouse.</small></div>
+        <div class="campo-admin"><label for="input-link-admin">Link al archivo o contenido completo</label><input type="text" id="input-link-admin" placeholder="URL, PDF o archivo local"></div>
+        <div class="campo-admin"><label for="input-texto-admin">Texto debajo de la tarjeta</label><textarea id="input-texto-admin" placeholder="Descripción breve"></textarea></div>
+        <div class="fila-admin"><button type="submit" id="boton-guardar-item" class="boton-admin boton-admin--principal">Agregar tarjeta</button><button type="button" id="boton-cancelar-edicion" class="boton-admin boton-admin--secundario" hidden>Cancelar edición</button></div>
+      </form>
+      <div class="lista-admin" id="lista-items-admin"></div>
+      <div class="acciones-admin-final" style="justify-content:flex-start;margin-top:22px"><button type="button" id="boton-cerrar-sesion-admin" class="boton-admin boton-admin--secundario">Cerrar sesión</button></div>
+    </div>
+  </div>
+
+  <script id="datos-contenido-inicial">
+    window.CONTENIDO_INICIAL = {
+      diarios: [[
+        { imagenes: ["VOCERO DEL SUR - 3ra Edición_pages-to-jpg-0001.jpg"], link: "VOCERO DEL SUR - 3ra Edición.pdf", texto: "El Vocero, edición 2/9: Disfruta de las nuevas perspectivas." }
+      ], [
+        { imagenes: ["WhatsApp Image 2026-08-30 at 23.40.39.jpeg"], link: "", texto: "Se estrena Jhon Pork 3: Más cochino que nunca." }
+      ], [
+        { imagenes: ["https://ejemplo.com/imagenes/diario-cooperacion-sanitaria.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fcooperacion-sanitaria&titulo=La%20reforma%20sobre%20la%20cooperaci%C3%B3n%20sanitaria%20internacional", texto: "La reforma sobre la cooperación sanitaria internacional y su impacto en el acceso a la salud global." }
+      ]],
+      noticieros: [
+        { imagenes: ["https://ejemplo.com/imagenes/noticiero-sintesis-semana.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fnoticiero-sintesis&titulo=Bolet%C3%ADn%20en%20video%3A%20s%C3%ADntesis%20de%20la%20semana", texto: "Boletín en video con la síntesis completa de la semana." },
+        { imagenes: ["https://ejemplo.com/imagenes/noticiero-crisis-climatica.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fnoticiero-clima&titulo=Reporte%20audiovisual%20sobre%20la%20crisis%20clim%C3%A1tica", texto: "Reporte audiovisual sobre la crisis climática." }
+      ],
+      entrevistas: [
+        { imagenes: ["https://ejemplo.com/imagenes/miniatura-entrevista-clima.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-clima-completa&titulo=Di%C3%A1logo%20con%20especialistas%20en%20cambio%20clim%C3%A1tico", texto: "Diálogo con especialistas en cambio climático." },
+        { imagenes: ["https://ejemplo.com/imagenes/miniatura-entrevista-paz.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-paz-completa&titulo=Voces%20j%C3%B3venes%20por%20la%20paz%20mundial", texto: "Voces jóvenes por la paz mundial." },
+        { imagenes: ["https://ejemplo.com/imagenes/miniatura-entrevista-sanitaria.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-sanitaria-completa&titulo=Cooperaci%C3%B3n%20sanitaria%3A%20mirada%20desde%20el%20terreno", texto: "Cooperación sanitaria: mirada desde el terreno." }
+      ]
+    };
+  </script>
+
+  <script>
+    (function () {
+      const ETIQUETAS = { diarios: "Ver diario", noticieros: "Ver más", entrevistas: "Ver entrevista" };
+      let contenido = { diarios: [[], [], []], noticieros: [], entrevistas: [] };
+      ["diarios", "noticieros", "entrevistas"].forEach((tipo) => { if (!Array.isArray(contenido[tipo])) contenido[tipo] = []; });
+      if (contenido.diarios.length && !Array.isArray(contenido.diarios[0])) contenido.diarios = contenido.diarios.map((item) => [item]);
+      contenido.diarios = Array.from({ length: 3 }, (_, indice) => Array.isArray(contenido.diarios[indice]) ? contenido.diarios[indice] : []);
+      contenido.diarios.flat().concat(contenido.noticieros, contenido.entrevistas).forEach((item) => { if (!Array.isArray(item.imagenes)) item.imagenes = item.imagen ? [item.imagen] : []; });
+      const escapar = (valor) => { const nodo = document.createElement("div"); nodo.textContent = valor || ""; return nodo.innerHTML; };
+      const urlSegura = (valor) => { const url = String(valor || "").trim(); if (!url || /[\u0000-\u001f\u007f]/.test(url) || /^(javascript|vbscript|data|file):/i.test(url) || url.startsWith("//") || url.startsWith("\\")) return ""; if (/^data:image\/(png|jpeg|gif|webp|avif);base64,[a-z0-9+/]+=*$/i.test(url)) return url; if (/^https?:\/\//i.test(url)) return url; return /^[a-z][a-z0-9+.-]*:/i.test(url) ? "" : url; };
+      const atributo = (valor) => escapar(urlSegura(valor)).replace(/"/g, "&quot;");
+      const guardar = async () => { const respuesta = await fetch("/api/content", { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(contenido) }); if (!respuesta.ok) throw new Error("No se pudo guardar el contenido."); };
+
+      function renderRecurso(tipo) {
+        const contenedor = document.getElementById("grid-" + tipo);
+        if (!contenedor) return;
+        const items = contenido[tipo];
+        contenedor.innerHTML = items.map((item, indice) => `<article class="tarjeta-recurso revelar visible"><a class="tarjeta-recurso__imagen" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}><img src="${atributo(item.imagenes[0] || "")}" alt="Imagen de ${tipo.slice(0, -1)}" loading="lazy" decoding="async" width="800" height="450"><span class="tarjeta-recurso__enlace">${ETIQUETAS[tipo]} ↗</span></a><p class="tarjeta-recurso__descripcion">${escapar(item.texto)}</p></article>`).join("");
+      }
+
+      function renderNoticieros() {
+        const contenedor = document.getElementById("grid-noticieros");
+        const tarjetas = contenido.noticieros.length ? contenido.noticieros : [{ imagenes: [""], video: "", link: "", texto: "Todavía no hay noticieros." }];
+        const slides = tarjetas.map((item) => `<article class="tarjeta-recurso"><a class="tarjeta-recurso__imagen" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}><div class="noticiero-preview"><img src="${atributo(item.imagenes[0] || "")}" alt="Imagen de noticiero" loading="lazy" width="800" height="450">${item.video ? `<video muted playsinline preload="metadata" data-preview-video><source src="${atributo(item.video)}" type="video/mp4"></video>` : ""}</div><span class="tarjeta-recurso__enlace">Ver más ↗</span></a><p class="tarjeta-recurso__descripcion">${escapar(item.texto)}</p></article>`).join("");
+        contenedor.className = "carrusel-diarios";
+        contenedor.innerHTML = `<div class="diario-carrusel" data-diario="noticieros"><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--prev" aria-label="Noticiero anterior">‹</button><div class="diario-carrusel__pista">${slides}</div><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--next" aria-label="Noticiero siguiente">›</button></div>`;
+        contenedor.querySelectorAll("[data-preview-video]").forEach((video) => {
+          const tarjeta = video.closest(".tarjeta-recurso");
+          const iniciar = () => { video.currentTime = 0; video.play().catch(() => {}); };
+          const detener = () => { video.pause(); video.currentTime = 0; };
+          tarjeta.addEventListener("mouseenter", iniciar);
+          tarjeta.addEventListener("mouseleave", detener);
+          tarjeta.addEventListener("focusin", iniciar);
+          tarjeta.addEventListener("focusout", detener);
+          video.addEventListener("timeupdate", () => { if (video.currentTime >= 5) detener(); });
+        });
+        inicializarCarruselDiario(contenedor.querySelector(".diario-carrusel"));
+      }
+
+      function renderDiarios() {
+        const contenedor = document.getElementById("grid-diarios");
+        contenedor.innerHTML = contenido.diarios.map((grupo, indice) => {
+          const tarjetas = grupo.length ? grupo : [{ imagenes: [""], link: "", texto: "Todavía no hay publicaciones en este carrusel." }];
+          const slides = tarjetas.map((item) => `<article class="tarjeta-recurso"><a class="tarjeta-recurso__imagen" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}><img src="${atributo(item.imagenes[0] || "")}" alt="Portada de diario" loading="lazy" width="800" height="450"><span class="tarjeta-recurso__enlace">Ver diario ↗</span></a><p class="tarjeta-recurso__descripcion">${escapar(item.texto)}</p></article>`).join("");
+          return `<div class="diario-carrusel" data-diario="${indice}"><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--prev" aria-label="Publicación anterior">‹</button><div class="diario-carrusel__pista">${slides}</div><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--next" aria-label="Publicación siguiente">›</button></div>`;
+        }).join("");
+        contenedor.querySelectorAll(".diario-carrusel").forEach(inicializarCarruselDiario);
+      }
+
+      function inicializarCarruselDiario(carrusel) {
+        const pista = carrusel.querySelector(".diario-carrusel__pista");
+        const originales = Array.from(pista.children);
+        let anchoSet = 0;
+
+        if (originales.length) {
+          const prepararClon = (elemento) => elemento.cloneNode(true);
+          const clonesAntes = originales.map(prepararClon);
+          const clonesDespues = originales.map(prepararClon);
+          const primerHijo = pista.firstElementChild;
+          clonesAntes.forEach((clon) => pista.insertBefore(clon, primerHijo));
+          clonesDespues.forEach((clon) => pista.appendChild(clon));
+          anchoSet = pista.children[originales.length].offsetLeft - pista.children[0].offsetLeft;
+          pista.scrollTo({ left: anchoSet, behavior: "instant" });
+        }
+
+        const tarjetas = Array.from(pista.children);
+        const actualizarEnfoque = () => {
+          const centroPista = pista.scrollLeft + pista.clientWidth / 2;
+          tarjetas.forEach((tarjeta) => {
+            const distancia = Math.abs(centroPista - (tarjeta.offsetLeft + tarjeta.offsetWidth / 2));
+            const normalizada = Math.min(distancia / (pista.clientWidth / 2), 1);
+            tarjeta.style.opacity = String(1 - normalizada * 0.7);
+            tarjeta.style.filter = `blur(${(normalizada * 4).toFixed(1)}px)`;
+            tarjeta.style.transform = `scale(${(1 - normalizada * 0.14).toFixed(3)})`;
+          });
+        };
+        const reubicarSiHaceFalta = () => {
+          if (!anchoSet) return;
+          if (pista.scrollLeft < anchoSet * 0.5) pista.scrollTo({ left: pista.scrollLeft + anchoSet, behavior: "instant" });
+          if (pista.scrollLeft > anchoSet * 1.5) pista.scrollTo({ left: pista.scrollLeft - anchoSet, behavior: "instant" });
+        };
+        let actualizando = false;
+        let temporizadorFinDeScroll = null;
+        pista.addEventListener("scroll", () => {
+          if (!actualizando) {
+            actualizando = true;
+            requestAnimationFrame(() => { actualizarEnfoque(); actualizando = false; });
+          }
+          clearTimeout(temporizadorFinDeScroll);
+          temporizadorFinDeScroll = setTimeout(reubicarSiHaceFalta, 120);
+        }, { passive: true });
+        actualizarEnfoque();
+        const anchoPaso = () => {
+          const primera = tarjetas[0];
+          if (!primera) return pista.clientWidth;
+          return primera.getBoundingClientRect().width + parseFloat(getComputedStyle(pista).gap || "24");
+        };
+        carrusel.querySelector(".diario-carrusel__flecha--prev").onclick = () => pista.scrollBy({ left: -anchoPaso(), behavior: "smooth" });
+        carrusel.querySelector(".diario-carrusel__flecha--next").onclick = () => pista.scrollBy({ left: anchoPaso(), behavior: "smooth" });
+      }
+
+      function renderEntrevistas() {
+        const contenedor = document.getElementById("grid-entrevistas");
+        const originales = contenido.entrevistas.map((item) => `<article class="tarjeta-entrevista revelar visible"><div class="tarjeta-entrevista__preview"><img src="${atributo(item.imagenes[0] || "")}" alt="Miniatura de entrevista" loading="lazy"><span class="tarjeta-entrevista__badge">Vista previa</span></div><div class="tarjeta-entrevista__info"><div><h3>${escapar(item.texto)}</h3><time class="fecha">Septiembre, 2026</time></div><a class="boton-acceso" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}>Ver entrevista ↗</a></div></article>`);
+        if (originales.length < 2) { contenedor.innerHTML = originales.join(""); return; }
+        contenedor.innerHTML = originales.concat(originales, originales).join("");
+        const paso = () => contenedor.querySelector(".tarjeta-entrevista").getBoundingClientRect().width + parseFloat(getComputedStyle(contenedor).gap || "24");
+        let ancho = paso() * originales.length;
+        contenedor.scrollLeft = ancho;
+        const enfocar = () => { const centro = contenedor.scrollLeft + contenedor.clientWidth / 2; Array.from(contenedor.children).forEach((tarjeta) => { const distancia = Math.abs(centro - (tarjeta.offsetLeft + tarjeta.offsetWidth / 2)); tarjeta.style.opacity = String(Math.max(.3, 1 - distancia / contenedor.clientWidth * .7)); tarjeta.style.filter = `blur(${Math.min(4, distancia / contenedor.clientWidth * 4).toFixed(1)}px)`; tarjeta.style.transform = `scale(${Math.max(.86, 1 - distancia / contenedor.clientWidth * .14).toFixed(3)})`; }); };
+        const reubicar = () => { if (contenedor.scrollLeft < ancho * .5) contenedor.scrollLeft += ancho; if (contenedor.scrollLeft > ancho * 1.5) contenedor.scrollLeft -= ancho; };
+        contenedor.addEventListener("scroll", () => { requestAnimationFrame(enfocar); clearTimeout(contenedor._timer); contenedor._timer = setTimeout(reubicar, 120); }, { passive: true });
+        const envoltorio = contenedor.closest(".carrusel-envoltorio");
+        envoltorio.querySelector(".carrusel-flecha--prev").onclick = () => contenedor.scrollBy({ left: -paso(), behavior: "smooth" });
+        envoltorio.querySelector(".carrusel-flecha--next").onclick = () => contenedor.scrollBy({ left: paso(), behavior: "smooth" });
+        enfocar();
+      }
+
+      function renderTodo() { renderDiarios(); renderNoticieros(); renderEntrevistas(); }
+      async function cargarContenido() {
+        try {
+          const respuesta = await fetch("/api/content", { credentials: "same-origin" });
+          if (!respuesta.ok) throw new Error("No se pudo cargar el contenido.");
+          contenido = await respuesta.json();
+        } catch (error) {
+          contenido = JSON.parse(JSON.stringify(window.CONTENIDO_INICIAL));
+        }
+        ["diarios", "noticieros", "entrevistas"].forEach((tipo) => { if (!Array.isArray(contenido[tipo])) contenido[tipo] = []; });
+        contenido.diarios = Array.from({ length: 3 }, (_, indice) => Array.isArray(contenido.diarios[indice]) ? contenido.diarios[indice] : []);
+        contenido.diarios.flat().concat(contenido.noticieros, contenido.entrevistas).forEach((item) => { if (!Array.isArray(item.imagenes)) item.imagenes = item.imagen ? [item.imagen] : []; });
+        renderTodo();
+      }
+      const login = document.getElementById("overlay-login-admin"); const panel = document.getElementById("overlay-panel-admin"); const formLogin = document.getElementById("form-login-admin"); const correo = document.getElementById("input-correo-admin"); const clave = document.getElementById("input-clave-admin"); const error = document.getElementById("error-login-admin"); const form = document.getElementById("form-item-admin"); const imagen = document.getElementById("input-imagen-url"); const archivo = document.getElementById("input-imagen-archivo"); const video = document.getElementById("input-video-admin"); const link = document.getElementById("input-link-admin"); const texto = document.getElementById("input-texto-admin"); const lista = document.getElementById("lista-items-admin"); let tipo = "diarios"; let carruselActivo = 0; let editando = null;
+      const coleccionActiva = () => tipo === "diarios" ? contenido.diarios[carruselActivo] : contenido[tipo];
+      const actualizarCampoVideo = () => { document.getElementById("campo-video-admin").hidden = tipo !== "noticieros"; };
+      const abrirPanel = () => { panel.classList.add("abierto"); renderLista(); }; const limpiar = () => { form.reset(); editando = null; document.getElementById("titulo-form-item").textContent = "Agregar nueva tarjeta"; document.getElementById("boton-guardar-item").textContent = "Agregar tarjeta"; document.getElementById("boton-cancelar-edicion").hidden = true; };
+      document.getElementById("boton-abrir-admin").onclick = () => { login.classList.add("abierto"); correo.focus(); };
+      formLogin.onsubmit = async (evento) => { evento.preventDefault(); error.textContent = ""; try { const respuesta = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ email: correo.value, password: clave.value }) }); if (!respuesta.ok) throw new Error("invalid"); login.classList.remove("abierto"); abrirPanel(); } catch (e) { error.textContent = "El correo o la contraseña no son válidos."; } };
+      document.querySelectorAll("[data-cerrar-admin]").forEach((boton) => boton.onclick = () => { login.classList.remove("abierto"); panel.classList.remove("abierto"); });
+      document.querySelectorAll(".pestania-admin[data-tipo]").forEach((boton) => boton.onclick = () => { tipo = boton.dataset.tipo; document.querySelectorAll(".pestania-admin[data-tipo]").forEach((pestania) => pestania.setAttribute("aria-selected", pestania === boton ? "true" : "false")); document.getElementById("pestanias-carrusel-diarios").hidden = tipo !== "diarios"; actualizarCampoVideo(); limpiar(); renderLista(); });
+      document.querySelectorAll(".pestania-admin[data-carrusel]").forEach((boton) => boton.onclick = () => { carruselActivo = Number(boton.dataset.carrusel); document.querySelectorAll(".pestania-admin[data-carrusel]").forEach((pestania) => pestania.setAttribute("aria-selected", pestania === boton ? "true" : "false")); limpiar(); renderLista(); });
+      archivo.onchange = () => { const seleccionado = archivo.files[0]; if (!seleccionado) return; const lector = new FileReader(); lector.onload = () => { imagen.value = lector.result; }; lector.readAsDataURL(seleccionado); };
+      document.getElementById("boton-cancelar-edicion").onclick = limpiar;
+      form.onsubmit = async (evento) => { evento.preventDefault(); const imagenes = imagen.value.split(/\r?\n/).map((valor) => valor.trim()).filter(Boolean); if (!imagenes.length || !texto.value.trim()) { alert("Completá la imagen y el texto de la tarjeta."); return; } const item = { imagenes, video: tipo === "noticieros" ? video.value.trim() : "", link: link.value.trim(), texto: texto.value.trim() }; const coleccion = coleccionActiva(); if (editando === null) coleccion.push(item); else coleccion[editando] = item; try { await guardar(); renderTodo(); limpiar(); renderLista(); } catch (e) { alert("La sesión venció o no se pudo guardar el contenido."); } };
+      function renderLista() { const coleccion = coleccionActiva(); lista.innerHTML = coleccion.length ? coleccion.map((item, indice) => `<div class="item-admin"><img src="${atributo(item.imagenes[0] || "")}" alt=""><div class="item-admin__texto">${escapar(item.texto)}</div><div class="item-admin__acciones"><button type="button" class="boton-admin boton-admin--secundario" data-editar="${indice}">Editar</button><button type="button" class="boton-admin boton-admin--peligro" data-eliminar="${indice}">Eliminar</button></div></div>`).join("") : '<p class="ayuda" style="margin:0">Todavía no hay tarjetas en este carrusel.</p>'; lista.querySelectorAll("[data-editar]").forEach((boton) => boton.onclick = () => { const item = coleccion[Number(boton.dataset.editar)]; imagen.value = item.imagenes.join("\n"); video.value = item.video || ""; link.value = item.link || ""; texto.value = item.texto || ""; editando = Number(boton.dataset.editar); document.getElementById("titulo-form-item").textContent = "Editando tarjeta"; document.getElementById("boton-guardar-item").textContent = "Guardar cambios"; document.getElementById("boton-cancelar-edicion").hidden = false; }); lista.querySelectorAll("[data-eliminar]").forEach((boton) => boton.onclick = async () => { if (!confirm("¿Eliminar esta tarjeta?")) return; coleccion.splice(Number(boton.dataset.eliminar), 1); try { await guardar(); renderTodo(); renderLista(); } catch (e) { alert("La sesión venció o no se pudo guardar el contenido."); } }); }
+      document.getElementById("boton-cerrar-sesion-admin").onclick = async () => { await fetch("/api/logout", { method: "POST", credentials: "same-origin" }); panel.classList.remove("abierto"); };
+      cargarContenido();
+    })();
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const progresoLectura = document.querySelector(".progreso-lectura");
+      let progresoPendiente = false;
+      const actualizarProgreso = () => {
+        progresoPendiente = false;
+        if (!progresoLectura) return;
+        const recorrido = document.documentElement.scrollHeight - window.innerHeight;
+        const porcentaje = recorrido > 0 ? Math.min(100, Math.max(0, (window.scrollY / recorrido) * 100)) : 0;
+        progresoLectura.style.transform = `scaleX(${porcentaje / 100})`;
+      };
+      const solicitarActualizacionProgreso = () => {
+        if (progresoPendiente) return;
+        progresoPendiente = true;
+        requestAnimationFrame(actualizarProgreso);
+      };
+      window.addEventListener("scroll", solicitarActualizacionProgreso, { passive: true });
+      window.addEventListener("resize", solicitarActualizacionProgreso, { passive: true });
+      actualizarProgreso();
+
+      const elementosRevelables = Array.from(document.querySelectorAll(".revelar"));
+      if (!reduceMotion && "IntersectionObserver" in window) {
+        const observadorRevelado = new IntersectionObserver((entradas, observador) => {
+          entradas.forEach((entrada) => {
+            if (!entrada.isIntersecting) return;
+            entrada.target.classList.add("visible");
+            observador.unobserve(entrada.target);
+          });
+        }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
+        elementosRevelables.forEach((elemento, indice) => {
+          elemento.style.transitionDelay = `${Math.min(indice * 70, 280)}ms`;
+          observadorRevelado.observe(elemento);
+        });
+      } else {
+        elementosRevelables.forEach((elemento) => elemento.classList.add("visible"));
+      }
+
+      const botonMenu = document.querySelector(".menu-boton");
+      const menu = document.querySelector(".menu-navegacion");
+      if (botonMenu && menu) {
+        const cerrarMenu = () => {
+          menu.classList.remove("abierto");
+          botonMenu.setAttribute("aria-expanded", "false");
+        };
+        botonMenu.addEventListener("click", (evento) => {
+          evento.stopPropagation();
+          const abierto = menu.classList.toggle("abierto");
+          botonMenu.setAttribute("aria-expanded", abierto ? "true" : "false");
+        });
+        menu.addEventListener("click", (evento) => {
+          if (evento.target.closest("a")) cerrarMenu();
+        });
+        document.addEventListener("click", (evento) => {
+          if (!menu.contains(evento.target) && !botonMenu.contains(evento.target)) cerrarMenu();
+        });
+        document.addEventListener("keydown", (evento) => {
+          if (evento.key === "Escape") cerrarMenu();
+        });
+      }
+
+      const botones = Array.from(document.querySelectorAll(".nav-boton"));
+      const secciones = botones.map((b) => document.getElementById(b.dataset.seccion)).filter(Boolean);
+      if (secciones.length && "IntersectionObserver" in window) {
+        const observador = new IntersectionObserver((entradas) => {
+          entradas.forEach((entrada) => {
+            if (!entrada.isIntersecting) return;
+            const boton = botones.find((b) => b.dataset.seccion === entrada.target.id);
+            if (!boton) return;
+            botones.forEach((b) => b.removeAttribute("aria-current"));
+            boton.setAttribute("aria-current", "true");
+          });
+        }, { rootMargin: "-40% 0px -55% 0px", threshold: 0 });
+        secciones.forEach((s) => observador.observe(s));
+      }
+
+      function inicializarVistaPrevia(video) {
+        const limite = parseFloat(video.dataset.limiteSegundos || "5");
+        video.addEventListener("timeupdate", () => {
+          if (video.currentTime >= limite) video.currentTime = 0;
+        });
+      }
+
+      document.querySelectorAll(".carrusel-entrevistas:not([data-dinamico])").forEach((carrusel) => {
+        const originales = Array.from(carrusel.querySelectorAll(".tarjeta-entrevista"));
+        const cantidadOriginal = originales.length;
+        let anchoSet = 0;
+
+        if (cantidadOriginal > 1) {
+          const prepararClon = (elemento) => {
+            const clon = elemento.cloneNode(true);
+            clon.classList.add("visible");
+            clon.style.transitionDelay = "0ms";
+            const video = clon.querySelector("video");
+            if (video) {
+              const poster = video.getAttribute("poster");
+              if (poster) {
+                const img = document.createElement("img");
+                img.src = poster;
+                img.alt = "";
+                img.loading = "lazy";
+                img.decoding = "async";
+                video.replaceWith(img);
+              } else {
+                video.remove();
+              }
+            }
+            return clon;
+          };
+          const clonesAntes = originales.map(prepararClon);
+          const clonesDespues = originales.map(prepararClon);
+          const primerHijo = carrusel.firstElementChild;
+          clonesAntes.forEach((clon) => carrusel.insertBefore(clon, primerHijo));
+          clonesDespues.forEach((clon) => carrusel.appendChild(clon));
+
+          const inicioSet1 = carrusel.children[0].offsetLeft;
+          const inicioSet2 = carrusel.children[cantidadOriginal].offsetLeft;
+          anchoSet = inicioSet2 - inicioSet1;
+          carrusel.scrollTo({ left: anchoSet, behavior: "instant" });
+        }
+
+        const tarjetas = Array.from(carrusel.querySelectorAll(".tarjeta-entrevista"));
+        tarjetas.forEach((tarjeta) => {
+          const video = tarjeta.querySelector(".video-preview");
+          if (video) inicializarVistaPrevia(video);
+        });
+
+        let actualizando = false;
+        let temporizadorFinDeScroll = null;
+        let videoActivo = null;
+
+        function actualizarEnfoque() {
+          const centroCarrusel = carrusel.scrollLeft + carrusel.clientWidth / 2;
+          let tarjetaActiva = null;
+          let menorDistancia = Infinity;
+          tarjetas.forEach((tarjeta) => {
+            const centroTarjeta = tarjeta.offsetLeft + tarjeta.offsetWidth / 2;
+            const distancia = Math.abs(centroCarrusel - centroTarjeta);
+            if (distancia < menorDistancia) {
+              menorDistancia = distancia;
+              tarjetaActiva = tarjeta;
+            }
+          });
+          tarjetas.forEach((tarjeta) => {
+            const centroTarjeta = tarjeta.offsetLeft + tarjeta.offsetWidth / 2;
+            const distancia = Math.abs(centroCarrusel - centroTarjeta);
+            if (tarjeta === tarjetaActiva) {
+              tarjeta.style.opacity = "1";
+              tarjeta.style.filter = "none";
+              tarjeta.style.transform = "scale(1)";
+            } else {
+              const normalizada = Math.min(distancia / (carrusel.clientWidth / 2), 1);
+              tarjeta.style.opacity = String(1 - normalizada * 0.7);
+              tarjeta.style.filter = `blur(${(normalizada * 4).toFixed(1)}px)`;
+              tarjeta.style.transform = `scale(${(1 - normalizada * 0.14).toFixed(3)})`;
+            }
+          });
+
+          const videoCentrado = tarjetaActiva && tarjetaActiva.querySelector(".video-preview");
+          if (videoCentrado !== videoActivo) {
+            if (videoActivo) videoActivo.pause();
+            videoActivo = videoCentrado;
+            if (videoActivo && !reduceMotion) videoActivo.play().catch(() => {});
+          }
+          actualizando = false;
+        }
+
+        function reubicarSiHaceFalta() {
+          if (!anchoSet) return;
+          if (carrusel.scrollLeft < anchoSet * 0.5) {
+            carrusel.scrollTo({ left: carrusel.scrollLeft + anchoSet, behavior: "instant" });
+          } else if (carrusel.scrollLeft > anchoSet * 1.5) {
+            carrusel.scrollTo({ left: carrusel.scrollLeft - anchoSet, behavior: "instant" });
+          }
+        }
+
+        carrusel.addEventListener("scroll", () => {
+          if (!actualizando) {
+            actualizando = true;
+            requestAnimationFrame(actualizarEnfoque);
+          }
+          clearTimeout(temporizadorFinDeScroll);
+          temporizadorFinDeScroll = setTimeout(reubicarSiHaceFalta, 120);
+        }, { passive: true });
+
+        actualizarEnfoque();
+
+        const envoltorio = carrusel.closest(".carrusel-envoltorio");
+        if (envoltorio) {
+          const anchoPaso = () => {
+            const primera = tarjetas[0];
+            if (!primera) return carrusel.clientWidth;
+            const estilo = getComputedStyle(carrusel);
+            const espacio = parseFloat(estilo.columnGap || estilo.gap || "24");
+            return primera.getBoundingClientRect().width + espacio;
+          };
+          const prev = envoltorio.querySelector(".carrusel-flecha--prev");
+          const next = envoltorio.querySelector(".carrusel-flecha--next");
+          if (prev) prev.addEventListener("click", () => carrusel.scrollBy({ left: -anchoPaso(), behavior: "smooth" }));
+          if (next) next.addEventListener("click", () => carrusel.scrollBy({ left: anchoPaso(), behavior: "smooth" }));
+        }
+      });
+    });
+
+    // =============================================================
+    // ACCESO OCULTO A TOP SECRET
+    // El apartado "Top Secret" está oculto para cualquier visitante.
+    // Solo quien conoce la PALABRA_SECRETA puede escribirla en
+    // cualquier parte de la página (con el teclado, no hace falta
+    // hacer clic en ningún campo) para que aparezca un cuadro pidiendo
+    // la CLAVE_ACCESO. Si coincide, el apartado se revela para el
+    // resto de esta visita (se recuerda con sessionStorage mientras
+    // la pestaña siga abierta).
+    //
+    // EDITA AQUÍ: cambiá estos dos valores por los que prefieras.
+    // No es un sistema de seguridad robusto (es HTML/JS visible en el
+    // navegador), pero alcanza para que no aparezca a simple vista.
+    // =============================================================
+    (function () {
+      const PALABRA_SECRETA = "veritas";
+      const CLAVE_ACCESO = "portal2026";
+      const CLAVE_GUARDADA = "ts_desbloqueado";
+
+      function revelarTopSecret() {
+        document.querySelectorAll(".oculto-top-secret").forEach((el) => {
+          el.classList.remove("oculto-top-secret");
+        });
+      }
+
+      function pedirClave() {
+        const intento = window.prompt("Acceso reservado. Ingresá la clave:");
+        if (intento === null) return;
+        if (intento === CLAVE_ACCESO) {
+          revelarTopSecret();
+          try { sessionStorage.setItem(CLAVE_GUARDADA, "1"); } catch (e) {}
+        } else {
+          window.alert("Clave incorrecta.");
+        }
+      }
+
+      let buffer = "";
+      document.addEventListener("keydown", (evento) => {
+        if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
+        const destino = evento.target;
+        if (destino && (destino.tagName === "INPUT" || destino.tagName === "TEXTAREA" || destino.isContentEditable)) return;
+        if (evento.key && evento.key.length === 1) {
+          buffer = (buffer + evento.key).slice(-PALABRA_SECRETA.length).toLowerCase();
+          if (buffer === PALABRA_SECRETA) {
+            buffer = "";
+            pedirClave();
+          }
+        }
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        try {
+          if (sessionStorage.getItem(CLAVE_GUARDADA) === "1") revelarTopSecret();
+        } catch (e) {}
+      });
+    })();
+  </script>
+</body>
+</html>

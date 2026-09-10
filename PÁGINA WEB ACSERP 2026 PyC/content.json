@@ -1,0 +1,16 @@
+{
+  "diarios": [
+    [{"imagenes":["VOCERO DEL SUR - 3ra Edición_pages-to-jpg-0001.jpg"],"link":"VOCERO DEL SUR - 3ra Edición.pdf","texto":"El Vocero, edición 2/9: Disfruta de las nuevas perspectivas."}],
+    [{"imagenes":["WhatsApp Image 2026-08-30 at 23.40.39.jpeg"],"link":"","texto":"Se estrena Jhon Pork 3: Más cochino que nunca."}],
+    [{"imagenes":["https://ejemplo.com/imagenes/diario-cooperacion-sanitaria.jpg"],"link":"visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fcooperacion-sanitaria&titulo=La%20reforma%20sobre%20la%20cooperaci%C3%B3n%20sanitaria%20internacional","texto":"La reforma sobre la cooperación sanitaria internacional y su impacto en el acceso a la salud global."}]
+  ],
+  "noticieros": [
+    {"imagenes":["https://ejemplo.com/imagenes/noticiero-sintesis-semana.jpg"],"link":"visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fnoticiero-sintesis&titulo=Bolet%C3%ADn%20en%20video%3A%20s%C3%ADntesis%20de%20la%20semana","texto":"Boletín en video con la síntesis completa de la semana."},
+    {"imagenes":["https://ejemplo.com/imagenes/noticiero-crisis-climatica.jpg"],"link":"visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fnoticiero-clima&titulo=Reporte%20audiovisual%20sobre%20la%20crisis%20clim%C3%A1tica","texto":"Reporte audiovisual sobre la crisis climática."}
+  ],
+  "entrevistas": [
+    {"imagenes":["https://ejemplo.com/imagenes/miniatura-entrevista-clima.jpg"],"link":"visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-clima-completa&titulo=Di%C3%A1logo%20con%20especialistas%20en%20cambio%20clim%C3%A1tico","texto":"Diálogo con especialistas en cambio climático."},
+    {"imagenes":["https://ejemplo.com/imagenes/miniatura-entrevista-paz.jpg"],"link":"visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-paz-completa&titulo=Voces%20j%C3%B3venes%20por%20la%20paz%20mundial","texto":"Voces jóvenes por la paz mundial."},
+    {"imagenes":["https://ejemplo.com/imagenes/miniatura-entrevista-sanitaria.jpg"],"link":"visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-sanitaria-completa&titulo=Cooperaci%C3%B3n%20sanitaria%3A%20mirada%20desde%20el%20terreno","texto":"Cooperación sanitaria: mirada desde el terreno."}
+  ]
+}
