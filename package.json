@@ -1,0 +1,9 @@
+{
+  "name": "informacion-global",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node server.js",
+    "hash-password": "node hash-password.js"
+  }
+}
