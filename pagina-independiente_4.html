@@ -191,7 +191,7 @@
   .noticiero-preview img, .noticiero-preview video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
   .noticiero-preview video { display: none; }
   .tarjeta-recurso:hover .noticiero-preview video, .tarjeta-recurso:focus-within .noticiero-preview video { display: block; }
-  .tarjeta-recurso:hover .noticiero-preview img, .tarjeta-recurso:focus-within .noticiero-preview img { opacity: 0; }
+  .tarjeta-recurso:hover .noticiero-preview.con-video img, .tarjeta-recurso:focus-within .noticiero-preview.con-video img { opacity: 0; }
   .diario-carrusel[data-diario="noticieros"] .tarjeta-recurso__descripcion { height: 79px; min-height: 79px; max-height: 79px; padding: 18px 20px; overflow: hidden; }
 
   .overlay-admin { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(8,15,27,.72); }
@@ -257,6 +257,22 @@
     .boton-top-secret { width: 100%; text-align: center; }
     .caja-admin { padding: 20px; }
   }
+
+  .tarjeta-recurso__imagen > .noticiero-preview { position: absolute; inset: 0; height: 100%; padding: 0; }
+  .pestania-admin[aria-pressed="true"] { color: white; background: var(--azul-marino); }
+  [data-track] { position: relative; }
+  .carrusel-unico [data-track] { justify-content: center; mask-image: none; -webkit-mask-image: none; }
+  .carrusel-unico article { opacity: 1; filter: none; transform: none; }
+  [hidden] { display: none !important; }
+  #texto-introduccion, #texto-pie { white-space: pre-line; }
+  #estado-editor { font-size: .85rem; color: #14507d; }
+  #estado-editor.error { color: #b3261e; }
+  .vista-previa-imagenes { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; }
+  .vista-previa-imagenes figure { margin: 0; width: 110px; }
+  .vista-previa-imagenes img { width: 110px; height: 80px; object-fit: contain; background: #eef2f6; border-radius: 8px; }
+  .vista-previa-imagenes figcaption { font-size: .72rem; overflow-wrap: anywhere; }
+  .galeria-controles { display: flex; justify-content: center; gap: 8px; padding: 6px; }
+  button:disabled { opacity: .5; cursor: wait; }
 </style>
 </head>
 <body>
@@ -268,7 +284,7 @@
     <div class="encabezado__interior">
       <a class="sello-contenedor" href="#inicio" aria-label="Ir al inicio">
         <img class="sello" alt="Información Global · Cobertura Mundial" src="sello.png" width="64" height="64" decoding="async" fetchpriority="high">
-        <span class="sello-texto" aria-hidden="true">Veritas nunquam perit</span>
+        <span id="texto-lema" class="sello-texto" aria-hidden="true">Veritas nunquam perit</span>
       </a>
       <!-- EDITA AQUÍ: para cambiar el logo, reemplazá sello.png en la misma carpeta. -->
 
@@ -289,10 +305,10 @@
   <!-- ============ INICIO: solo introducción ============ -->
   <section id="inicio" class="revelar">
     <div class="contenedor contenedor--angosto">
-      <h1 class="titulo-seccion">Bienvenidos a Información Global</h1>
+      <h1 id="texto-titulo" class="titulo-seccion">Bienvenidos a Información Global</h1>
       <div class="barra-progreso"><span></span></div>
       <!-- EDITA AQUÍ: texto de introducción -->
-      <p class="intro-texto">Poronga un espacio de cobertura mundial pensado para acercarles, de forma simple, la actualidad internacional. Van a encontrar diarios con la información completa de cada tema, entrevistas en video a especialistas y protagonistas, una sección Top Secret con documentos reservados, y noticieros con el resumen audiovisual de la semana. Usen los botones del encabezado para moverse directamente a cada sección.</p>
+      <p id="texto-introduccion" class="intro-texto">Poronga un espacio de cobertura mundial pensado para acercarles, de forma simple, la actualidad internacional. Van a encontrar diarios con la información completa de cada tema, entrevistas en video a especialistas y protagonistas, una sección Top Secret con documentos reservados, y noticieros con el resumen audiovisual de la semana. Usen los botones del encabezado para moverse directamente a cada sección.</p>
     </div>
   </section>
 
@@ -318,11 +334,7 @@
          el link a un video corto (mp4) para la vista previa. El video se reproduce solo, en silencio,
          en bucle, y se corta a los primeros 5 segundos automáticamente. Deslizá hacia los costados
          (o usá las flechas) para pasar de una entrevista a otra. -->
-    <div class="carrusel-envoltorio">
-      <button type="button" class="carrusel-flecha carrusel-flecha--prev" aria-label="Entrevista anterior">‹</button>
-      <div class="carrusel-entrevistas" id="grid-entrevistas" data-dinamico="true"></div>
-      <button type="button" class="carrusel-flecha carrusel-flecha--next" aria-label="Entrevista siguiente">›</button>
-    </div>
+    <div id="grid-entrevistas"></div>
   </section>
 
   <!-- ============ TOP SECRET: botón grande + fondo CLASSIFIED, abre una pestaña aparte ============ -->
@@ -351,7 +363,7 @@
   </main>
 
   <footer class="pie">
-    INFORMACIÓN GLOBAL · COBERTURA MUNDIAL · Septiembre, 2026 · Contenido editorial de solo lectura
+    <span id="texto-pie">INFORMACIÓN GLOBAL · COBERTURA MUNDIAL · Septiembre, 2026 · Contenido editorial de solo lectura</span>
     <button type="button" class="boton-pie-admin" id="boton-abrir-admin" aria-label="Abrir acceso editorial">Acceso editorial</button>
   </footer>
 
@@ -359,9 +371,9 @@
     <div class="caja-admin caja-admin--login">
       <button type="button" class="cerrar-admin" data-cerrar-admin aria-label="Cerrar">×</button>
       <h3>Acceso al panel</h3>
-      <p class="ayuda">Ingresá el correo autorizado y la contraseña para administrar el contenido.</p>
+      <p class="ayuda">Ingresá con el mismo correo y contraseña de administrador que usás en la web de ACSERP.</p>
       <form id="form-login-admin">
-        <div class="campo-admin"><label for="input-correo-admin">Correo de confirmación</label><input type="email" id="input-correo-admin" required autocomplete="email" placeholder="tu correo autorizado"></div>
+        <div class="campo-admin"><label for="input-correo-admin">Correo electrónico</label><input type="email" id="input-correo-admin" required autocomplete="email" placeholder="tu correo autorizado"></div>
         <div class="campo-admin"><label for="input-clave-admin">Contraseña</label><input type="password" id="input-clave-admin" required autocomplete="current-password"></div>
         <p id="error-login-admin" style="color:#b3261e;font-size:.8rem;min-height:1em;margin:0 0 12px;"></p>
         <button type="submit" class="boton-admin boton-admin--principal" style="width:100%;">Ingresar</button>
@@ -375,204 +387,55 @@
       <h3>Panel de administración</h3>
       <p class="ayuda">Elegí qué subir o modificar, la imagen, el link al archivo y el texto de cada tarjeta.</p>
       <div class="aviso-admin">Los cambios quedan guardados en el servidor y quedan disponibles para todos los visitantes autorizados.</div>
-      <div class="pestanias-admin" role="tablist">
+      <div class="pestanias-admin" role="tablist" aria-label="Sección a editar">
         <button type="button" class="pestania-admin" data-tipo="diarios" aria-selected="true">Diarios</button>
-        <button type="button" class="pestania-admin" data-tipo="noticieros" aria-selected="false">Noticieros</button>
         <button type="button" class="pestania-admin" data-tipo="entrevistas" aria-selected="false">Entrevistas</button>
+        <button type="button" class="pestania-admin" data-tipo="noticieros" aria-selected="false">Noticieros</button>
+        <button type="button" class="pestania-admin" data-tipo="encabezado" aria-selected="false">Encabezado</button>
+        <button type="button" class="pestania-admin" data-tipo="pie" aria-selected="false">Pie de página</button>
       </div>
-      <div class="pestanias-admin" id="pestanias-carrusel-diarios" role="tablist" aria-label="Carruseles de diarios">
-        <button type="button" class="pestania-admin" data-carrusel="0" aria-selected="true">Carrusel 1</button>
-        <button type="button" class="pestania-admin" data-carrusel="1" aria-selected="false">Carrusel 2</button>
-        <button type="button" class="pestania-admin" data-carrusel="2" aria-selected="false">Carrusel 3</button>
-      </div>
-      <form id="form-item-admin">
-        <h4 id="titulo-form-item" style="font-family:var(--fuente-display);margin:0 0 14px;">Agregar nueva tarjeta</h4>
-        <div class="campo-admin">
-          <label for="input-imagen-url">Imagen a insertar</label>
-          <input type="text" id="input-imagen-url" placeholder="URL o nombre del archivo">
-          <input type="file" id="input-imagen-archivo" accept="image/*" style="margin-top:8px">
-          <small>Podés pegar una URL o subir una imagen. Para un carrusel de Diario, separá varias URLs con saltos de línea.</small>
+      <p id="estado-editor" role="status" aria-live="polite"></p>
+      <div id="editor-tarjetas">
+        <div class="pestanias-admin" id="pestanias-carruseles" aria-label="Carruseles"></div>
+        <div class="fila-admin" style="margin-bottom:20px">
+          <button type="button" id="agregar-carrusel" class="boton-admin boton-admin--secundario">Agregar carrusel</button>
+          <button type="button" id="eliminar-carrusel" class="boton-admin boton-admin--peligro">Eliminar carrusel</button>
         </div>
-        <div class="campo-admin" id="campo-video-admin" hidden><label for="input-video-admin">Video de previsualización (Noticieros)</label><input type="text" id="input-video-admin" placeholder="URL o nombre del archivo MP4"><small>Se reproducen automáticamente solo los primeros 5 segundos al pasar el mouse.</small></div>
-        <div class="campo-admin"><label for="input-link-admin">Link al archivo o contenido completo</label><input type="text" id="input-link-admin" placeholder="URL, PDF o archivo local"></div>
-        <div class="campo-admin"><label for="input-texto-admin">Texto debajo de la tarjeta</label><textarea id="input-texto-admin" placeholder="Descripción breve"></textarea></div>
-        <div class="fila-admin"><button type="submit" id="boton-guardar-item" class="boton-admin boton-admin--principal">Agregar tarjeta</button><button type="button" id="boton-cancelar-edicion" class="boton-admin boton-admin--secundario" hidden>Cancelar edición</button></div>
+        <form id="form-item-admin">
+          <h4 id="titulo-form-item">Agregar nueva tarjeta</h4>
+          <div class="campo-admin">
+            <label for="input-imagen-archivo">Subir imágenes desde tu dispositivo</label>
+            <input type="file" id="input-imagen-archivo" accept="image/jpeg,image/png,image/webp,image/gif" multiple>
+            <small>JPG, PNG, WebP o GIF. Máximo 20 MB por archivo y 20 imágenes por tarjeta. Esperá la vista previa y luego guardá la tarjeta.</small>
+          </div>
+          <div class="campo-admin">
+            <label for="input-imagen-url">Direcciones de las imágenes</label>
+            <textarea id="input-imagen-url" placeholder="https://sitio.com/portada.jpg&#10;/uploads/imagen.png"></textarea>
+            <small>Una dirección por renglón. La carga desde tu dispositivo completa este campo automáticamente. También podés pegar un enlace público directo a la imagen o el nombre de un archivo que ya exista en el proyecto (por ejemplo, sello.png). No uses rutas de tu computadora ni enlaces a páginas de Google Drive o Canva.</small>
+            <div id="vista-previa-imagenes" class="vista-previa-imagenes"></div>
+          </div>
+          <div class="campo-admin" id="campo-video-admin" hidden><label for="input-video-admin">Video de previsualización (opcional)</label><input type="text" id="input-video-admin" placeholder="https://sitio.com/video.mp4"><small>Enlace directo a un MP4 público o archivo que ya exista en el proyecto. Se muestran hasta 5 segundos al pasar el mouse. Para YouTube, usá el enlace al contenido completo.</small></div>
+          <div class="campo-admin"><label for="input-link-admin">Enlace al contenido completo (opcional)</label><input type="text" id="input-link-admin" placeholder="https://sitio.com/noticia o archivo.pdf"><small>Destino que se abre al tocar la tarjeta: noticia, PDF o video. Es independiente de la imagen de portada. Escribir el nombre de un archivo no lo sube.</small></div>
+          <div class="campo-admin"><label for="input-texto-admin">Texto de la tarjeta</label><textarea id="input-texto-admin" maxlength="2000" required placeholder="Descripción breve"></textarea><small>Hasta 2000 caracteres.</small></div>
+          <div class="fila-admin"><button type="submit" id="boton-guardar-item" class="boton-admin boton-admin--principal">Agregar tarjeta</button><button type="button" id="boton-cancelar-edicion" class="boton-admin boton-admin--secundario" hidden>Cancelar edición</button></div>
+        </form>
+        <div class="lista-admin" id="lista-items-admin"></div>
+      </div>
+      <form id="form-textos-admin" hidden>
+        <div id="campos-encabezado">
+          <div class="campo-admin"><label for="input-titulo">Título de bienvenida</label><input id="input-titulo" maxlength="200"></div>
+          <div class="campo-admin"><label for="input-introduccion">Texto de introducción</label><textarea id="input-introduccion" maxlength="10000" rows="6"></textarea></div>
+          <div class="campo-admin"><label for="input-lema">Texto junto al logo</label><input id="input-lema" maxlength="200"></div>
+        </div>
+        <div id="campos-pie" class="campo-admin"><label for="input-pie">Texto sobre Acceso editorial</label><textarea id="input-pie" maxlength="2000" rows="4"></textarea></div>
+        <button type="submit" class="boton-admin boton-admin--principal">Guardar texto</button>
       </form>
-      <div class="lista-admin" id="lista-items-admin"></div>
       <div class="acciones-admin-final" style="justify-content:flex-start;margin-top:22px"><button type="button" id="boton-cerrar-sesion-admin" class="boton-admin boton-admin--secundario">Cerrar sesión</button></div>
     </div>
   </div>
 
-  <script id="datos-contenido-inicial">
-    window.CONTENIDO_INICIAL = {
-      diarios: [[
-        { imagenes: ["VOCERO DEL SUR - 3ra Edición_pages-to-jpg-0001.jpg"], link: "VOCERO DEL SUR - 3ra Edición.pdf", texto: "El Vocero, edición 2/9: Disfruta de las nuevas perspectivas." }
-      ], [
-        { imagenes: ["WhatsApp Image 2026-08-30 at 23.40.39.jpeg"], link: "", texto: "Se estrena Jhon Pork 3: Más cochino que nunca." }
-      ], [
-        { imagenes: ["https://ejemplo.com/imagenes/diario-cooperacion-sanitaria.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fcooperacion-sanitaria&titulo=La%20reforma%20sobre%20la%20cooperaci%C3%B3n%20sanitaria%20internacional", texto: "La reforma sobre la cooperación sanitaria internacional y su impacto en el acceso a la salud global." }
-      ]],
-      noticieros: [
-        { imagenes: ["https://ejemplo.com/imagenes/noticiero-sintesis-semana.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fnoticiero-sintesis&titulo=Bolet%C3%ADn%20en%20video%3A%20s%C3%ADntesis%20de%20la%20semana", texto: "Boletín en video con la síntesis completa de la semana." },
-        { imagenes: ["https://ejemplo.com/imagenes/noticiero-crisis-climatica.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fnoticiero-clima&titulo=Reporte%20audiovisual%20sobre%20la%20crisis%20clim%C3%A1tica", texto: "Reporte audiovisual sobre la crisis climática." }
-      ],
-      entrevistas: [
-        { imagenes: ["https://ejemplo.com/imagenes/miniatura-entrevista-clima.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-clima-completa&titulo=Di%C3%A1logo%20con%20especialistas%20en%20cambio%20clim%C3%A1tico", texto: "Diálogo con especialistas en cambio climático." },
-        { imagenes: ["https://ejemplo.com/imagenes/miniatura-entrevista-paz.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-paz-completa&titulo=Voces%20j%C3%B3venes%20por%20la%20paz%20mundial", texto: "Voces jóvenes por la paz mundial." },
-        { imagenes: ["https://ejemplo.com/imagenes/miniatura-entrevista-sanitaria.jpg"], link: "visor.html?url=https%3A%2F%2Fenlace-a-la-fuente.com%2Fentrevista-sanitaria-completa&titulo=Cooperaci%C3%B3n%20sanitaria%3A%20mirada%20desde%20el%20terreno", texto: "Cooperación sanitaria: mirada desde el terreno." }
-      ]
-    };
-  </script>
-
-  <script>
-    (function () {
-      const ETIQUETAS = { diarios: "Ver diario", noticieros: "Ver más", entrevistas: "Ver entrevista" };
-      let contenido = { diarios: [[], [], []], noticieros: [], entrevistas: [] };
-      ["diarios", "noticieros", "entrevistas"].forEach((tipo) => { if (!Array.isArray(contenido[tipo])) contenido[tipo] = []; });
-      if (contenido.diarios.length && !Array.isArray(contenido.diarios[0])) contenido.diarios = contenido.diarios.map((item) => [item]);
-      contenido.diarios = Array.from({ length: 3 }, (_, indice) => Array.isArray(contenido.diarios[indice]) ? contenido.diarios[indice] : []);
-      contenido.diarios.flat().concat(contenido.noticieros, contenido.entrevistas).forEach((item) => { if (!Array.isArray(item.imagenes)) item.imagenes = item.imagen ? [item.imagen] : []; });
-      const escapar = (valor) => { const nodo = document.createElement("div"); nodo.textContent = valor || ""; return nodo.innerHTML; };
-      const urlSegura = (valor) => { const url = String(valor || "").trim(); if (!url || /[\u0000-\u001f\u007f]/.test(url) || /^(javascript|vbscript|data|file):/i.test(url) || url.startsWith("//") || url.startsWith("\\")) return ""; if (/^data:image\/(png|jpeg|gif|webp|avif);base64,[a-z0-9+/]+=*$/i.test(url)) return url; if (/^https?:\/\//i.test(url)) return url; return /^[a-z][a-z0-9+.-]*:/i.test(url) ? "" : url; };
-      const atributo = (valor) => escapar(urlSegura(valor)).replace(/"/g, "&quot;");
-      const guardar = async () => { const respuesta = await fetch("/api/content", { method: "PUT", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(contenido) }); if (!respuesta.ok) throw new Error("No se pudo guardar el contenido."); };
-
-      function renderRecurso(tipo) {
-        const contenedor = document.getElementById("grid-" + tipo);
-        if (!contenedor) return;
-        const items = contenido[tipo];
-        contenedor.innerHTML = items.map((item, indice) => `<article class="tarjeta-recurso revelar visible"><a class="tarjeta-recurso__imagen" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}><img src="${atributo(item.imagenes[0] || "")}" alt="Imagen de ${tipo.slice(0, -1)}" loading="lazy" decoding="async" width="800" height="450"><span class="tarjeta-recurso__enlace">${ETIQUETAS[tipo]} ↗</span></a><p class="tarjeta-recurso__descripcion">${escapar(item.texto)}</p></article>`).join("");
-      }
-
-      function renderNoticieros() {
-        const contenedor = document.getElementById("grid-noticieros");
-        const tarjetas = contenido.noticieros.length ? contenido.noticieros : [{ imagenes: [""], video: "", link: "", texto: "Todavía no hay noticieros." }];
-        const slides = tarjetas.map((item) => `<article class="tarjeta-recurso"><a class="tarjeta-recurso__imagen" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}><div class="noticiero-preview"><img src="${atributo(item.imagenes[0] || "")}" alt="Imagen de noticiero" loading="lazy" width="800" height="450">${item.video ? `<video muted playsinline preload="metadata" data-preview-video><source src="${atributo(item.video)}" type="video/mp4"></video>` : ""}</div><span class="tarjeta-recurso__enlace">Ver más ↗</span></a><p class="tarjeta-recurso__descripcion">${escapar(item.texto)}</p></article>`).join("");
-        contenedor.className = "carrusel-diarios";
-        contenedor.innerHTML = `<div class="diario-carrusel" data-diario="noticieros"><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--prev" aria-label="Noticiero anterior">‹</button><div class="diario-carrusel__pista">${slides}</div><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--next" aria-label="Noticiero siguiente">›</button></div>`;
-        contenedor.querySelectorAll("[data-preview-video]").forEach((video) => {
-          const tarjeta = video.closest(".tarjeta-recurso");
-          const iniciar = () => { video.currentTime = 0; video.play().catch(() => {}); };
-          const detener = () => { video.pause(); video.currentTime = 0; };
-          tarjeta.addEventListener("mouseenter", iniciar);
-          tarjeta.addEventListener("mouseleave", detener);
-          tarjeta.addEventListener("focusin", iniciar);
-          tarjeta.addEventListener("focusout", detener);
-          video.addEventListener("timeupdate", () => { if (video.currentTime >= 5) detener(); });
-        });
-        inicializarCarruselDiario(contenedor.querySelector(".diario-carrusel"));
-      }
-
-      function renderDiarios() {
-        const contenedor = document.getElementById("grid-diarios");
-        contenedor.innerHTML = contenido.diarios.map((grupo, indice) => {
-          const tarjetas = grupo.length ? grupo : [{ imagenes: [""], link: "", texto: "Todavía no hay publicaciones en este carrusel." }];
-          const slides = tarjetas.map((item) => `<article class="tarjeta-recurso"><a class="tarjeta-recurso__imagen" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}><img src="${atributo(item.imagenes[0] || "")}" alt="Portada de diario" loading="lazy" width="800" height="450"><span class="tarjeta-recurso__enlace">Ver diario ↗</span></a><p class="tarjeta-recurso__descripcion">${escapar(item.texto)}</p></article>`).join("");
-          return `<div class="diario-carrusel" data-diario="${indice}"><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--prev" aria-label="Publicación anterior">‹</button><div class="diario-carrusel__pista">${slides}</div><button type="button" class="diario-carrusel__flecha diario-carrusel__flecha--next" aria-label="Publicación siguiente">›</button></div>`;
-        }).join("");
-        contenedor.querySelectorAll(".diario-carrusel").forEach(inicializarCarruselDiario);
-      }
-
-      function inicializarCarruselDiario(carrusel) {
-        const pista = carrusel.querySelector(".diario-carrusel__pista");
-        const originales = Array.from(pista.children);
-        let anchoSet = 0;
-
-        if (originales.length) {
-          const prepararClon = (elemento) => elemento.cloneNode(true);
-          const clonesAntes = originales.map(prepararClon);
-          const clonesDespues = originales.map(prepararClon);
-          const primerHijo = pista.firstElementChild;
-          clonesAntes.forEach((clon) => pista.insertBefore(clon, primerHijo));
-          clonesDespues.forEach((clon) => pista.appendChild(clon));
-          anchoSet = pista.children[originales.length].offsetLeft - pista.children[0].offsetLeft;
-          pista.scrollTo({ left: anchoSet, behavior: "instant" });
-        }
-
-        const tarjetas = Array.from(pista.children);
-        const actualizarEnfoque = () => {
-          const centroPista = pista.scrollLeft + pista.clientWidth / 2;
-          tarjetas.forEach((tarjeta) => {
-            const distancia = Math.abs(centroPista - (tarjeta.offsetLeft + tarjeta.offsetWidth / 2));
-            const normalizada = Math.min(distancia / (pista.clientWidth / 2), 1);
-            tarjeta.style.opacity = String(1 - normalizada * 0.7);
-            tarjeta.style.filter = `blur(${(normalizada * 4).toFixed(1)}px)`;
-            tarjeta.style.transform = `scale(${(1 - normalizada * 0.14).toFixed(3)})`;
-          });
-        };
-        const reubicarSiHaceFalta = () => {
-          if (!anchoSet) return;
-          if (pista.scrollLeft < anchoSet * 0.5) pista.scrollTo({ left: pista.scrollLeft + anchoSet, behavior: "instant" });
-          if (pista.scrollLeft > anchoSet * 1.5) pista.scrollTo({ left: pista.scrollLeft - anchoSet, behavior: "instant" });
-        };
-        let actualizando = false;
-        let temporizadorFinDeScroll = null;
-        pista.addEventListener("scroll", () => {
-          if (!actualizando) {
-            actualizando = true;
-            requestAnimationFrame(() => { actualizarEnfoque(); actualizando = false; });
-          }
-          clearTimeout(temporizadorFinDeScroll);
-          temporizadorFinDeScroll = setTimeout(reubicarSiHaceFalta, 120);
-        }, { passive: true });
-        actualizarEnfoque();
-        const anchoPaso = () => {
-          const primera = tarjetas[0];
-          if (!primera) return pista.clientWidth;
-          return primera.getBoundingClientRect().width + parseFloat(getComputedStyle(pista).gap || "24");
-        };
-        carrusel.querySelector(".diario-carrusel__flecha--prev").onclick = () => pista.scrollBy({ left: -anchoPaso(), behavior: "smooth" });
-        carrusel.querySelector(".diario-carrusel__flecha--next").onclick = () => pista.scrollBy({ left: anchoPaso(), behavior: "smooth" });
-      }
-
-      function renderEntrevistas() {
-        const contenedor = document.getElementById("grid-entrevistas");
-        const originales = contenido.entrevistas.map((item) => `<article class="tarjeta-entrevista revelar visible"><div class="tarjeta-entrevista__preview"><img src="${atributo(item.imagenes[0] || "")}" alt="Miniatura de entrevista" loading="lazy"><span class="tarjeta-entrevista__badge">Vista previa</span></div><div class="tarjeta-entrevista__info"><div><h3>${escapar(item.texto)}</h3><time class="fecha">Septiembre, 2026</time></div><a class="boton-acceso" href="${atributo(item.link || "#")}"${item.link ? ' target="_blank" rel="noopener noreferrer"' : ""}>Ver entrevista ↗</a></div></article>`);
-        if (originales.length < 2) { contenedor.innerHTML = originales.join(""); return; }
-        contenedor.innerHTML = originales.concat(originales, originales).join("");
-        const paso = () => contenedor.querySelector(".tarjeta-entrevista").getBoundingClientRect().width + parseFloat(getComputedStyle(contenedor).gap || "24");
-        let ancho = paso() * originales.length;
-        contenedor.scrollLeft = ancho;
-        const enfocar = () => { const centro = contenedor.scrollLeft + contenedor.clientWidth / 2; Array.from(contenedor.children).forEach((tarjeta) => { const distancia = Math.abs(centro - (tarjeta.offsetLeft + tarjeta.offsetWidth / 2)); tarjeta.style.opacity = String(Math.max(.3, 1 - distancia / contenedor.clientWidth * .7)); tarjeta.style.filter = `blur(${Math.min(4, distancia / contenedor.clientWidth * 4).toFixed(1)}px)`; tarjeta.style.transform = `scale(${Math.max(.86, 1 - distancia / contenedor.clientWidth * .14).toFixed(3)})`; }); };
-        const reubicar = () => { if (contenedor.scrollLeft < ancho * .5) contenedor.scrollLeft += ancho; if (contenedor.scrollLeft > ancho * 1.5) contenedor.scrollLeft -= ancho; };
-        contenedor.addEventListener("scroll", () => { requestAnimationFrame(enfocar); clearTimeout(contenedor._timer); contenedor._timer = setTimeout(reubicar, 120); }, { passive: true });
-        const envoltorio = contenedor.closest(".carrusel-envoltorio");
-        envoltorio.querySelector(".carrusel-flecha--prev").onclick = () => contenedor.scrollBy({ left: -paso(), behavior: "smooth" });
-        envoltorio.querySelector(".carrusel-flecha--next").onclick = () => contenedor.scrollBy({ left: paso(), behavior: "smooth" });
-        enfocar();
-      }
-
-      function renderTodo() { renderDiarios(); renderNoticieros(); renderEntrevistas(); }
-      async function cargarContenido() {
-        try {
-          const respuesta = await fetch("/api/content", { credentials: "same-origin" });
-          if (!respuesta.ok) throw new Error("No se pudo cargar el contenido.");
-          contenido = await respuesta.json();
-        } catch (error) {
-          contenido = JSON.parse(JSON.stringify(window.CONTENIDO_INICIAL));
-        }
-        ["diarios", "noticieros", "entrevistas"].forEach((tipo) => { if (!Array.isArray(contenido[tipo])) contenido[tipo] = []; });
-        contenido.diarios = Array.from({ length: 3 }, (_, indice) => Array.isArray(contenido.diarios[indice]) ? contenido.diarios[indice] : []);
-        contenido.diarios.flat().concat(contenido.noticieros, contenido.entrevistas).forEach((item) => { if (!Array.isArray(item.imagenes)) item.imagenes = item.imagen ? [item.imagen] : []; });
-        renderTodo();
-      }
-      const login = document.getElementById("overlay-login-admin"); const panel = document.getElementById("overlay-panel-admin"); const formLogin = document.getElementById("form-login-admin"); const correo = document.getElementById("input-correo-admin"); const clave = document.getElementById("input-clave-admin"); const error = document.getElementById("error-login-admin"); const form = document.getElementById("form-item-admin"); const imagen = document.getElementById("input-imagen-url"); const archivo = document.getElementById("input-imagen-archivo"); const video = document.getElementById("input-video-admin"); const link = document.getElementById("input-link-admin"); const texto = document.getElementById("input-texto-admin"); const lista = document.getElementById("lista-items-admin"); let tipo = "diarios"; let carruselActivo = 0; let editando = null;
-      const coleccionActiva = () => tipo === "diarios" ? contenido.diarios[carruselActivo] : contenido[tipo];
-      const actualizarCampoVideo = () => { document.getElementById("campo-video-admin").hidden = tipo !== "noticieros"; };
-      const abrirPanel = () => { panel.classList.add("abierto"); renderLista(); }; const limpiar = () => { form.reset(); editando = null; document.getElementById("titulo-form-item").textContent = "Agregar nueva tarjeta"; document.getElementById("boton-guardar-item").textContent = "Agregar tarjeta"; document.getElementById("boton-cancelar-edicion").hidden = true; };
-      document.getElementById("boton-abrir-admin").onclick = () => { login.classList.add("abierto"); correo.focus(); };
-      formLogin.onsubmit = async (evento) => { evento.preventDefault(); error.textContent = ""; try { const respuesta = await fetch("/api/login", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ email: correo.value, password: clave.value }) }); if (!respuesta.ok) throw new Error("invalid"); login.classList.remove("abierto"); abrirPanel(); } catch (e) { error.textContent = "El correo o la contraseña no son válidos."; } };
-      document.querySelectorAll("[data-cerrar-admin]").forEach((boton) => boton.onclick = () => { login.classList.remove("abierto"); panel.classList.remove("abierto"); });
-      document.querySelectorAll(".pestania-admin[data-tipo]").forEach((boton) => boton.onclick = () => { tipo = boton.dataset.tipo; document.querySelectorAll(".pestania-admin[data-tipo]").forEach((pestania) => pestania.setAttribute("aria-selected", pestania === boton ? "true" : "false")); document.getElementById("pestanias-carrusel-diarios").hidden = tipo !== "diarios"; actualizarCampoVideo(); limpiar(); renderLista(); });
-      document.querySelectorAll(".pestania-admin[data-carrusel]").forEach((boton) => boton.onclick = () => { carruselActivo = Number(boton.dataset.carrusel); document.querySelectorAll(".pestania-admin[data-carrusel]").forEach((pestania) => pestania.setAttribute("aria-selected", pestania === boton ? "true" : "false")); limpiar(); renderLista(); });
-      archivo.onchange = () => { const seleccionado = archivo.files[0]; if (!seleccionado) return; const lector = new FileReader(); lector.onload = () => { imagen.value = lector.result; }; lector.readAsDataURL(seleccionado); };
-      document.getElementById("boton-cancelar-edicion").onclick = limpiar;
-      form.onsubmit = async (evento) => { evento.preventDefault(); const imagenes = imagen.value.split(/\r?\n/).map((valor) => valor.trim()).filter(Boolean); if (!imagenes.length || !texto.value.trim()) { alert("Completá la imagen y el texto de la tarjeta."); return; } const item = { imagenes, video: tipo === "noticieros" ? video.value.trim() : "", link: link.value.trim(), texto: texto.value.trim() }; const coleccion = coleccionActiva(); if (editando === null) coleccion.push(item); else coleccion[editando] = item; try { await guardar(); renderTodo(); limpiar(); renderLista(); } catch (e) { alert("La sesión venció o no se pudo guardar el contenido."); } };
-      function renderLista() { const coleccion = coleccionActiva(); lista.innerHTML = coleccion.length ? coleccion.map((item, indice) => `<div class="item-admin"><img src="${atributo(item.imagenes[0] || "")}" alt=""><div class="item-admin__texto">${escapar(item.texto)}</div><div class="item-admin__acciones"><button type="button" class="boton-admin boton-admin--secundario" data-editar="${indice}">Editar</button><button type="button" class="boton-admin boton-admin--peligro" data-eliminar="${indice}">Eliminar</button></div></div>`).join("") : '<p class="ayuda" style="margin:0">Todavía no hay tarjetas en este carrusel.</p>'; lista.querySelectorAll("[data-editar]").forEach((boton) => boton.onclick = () => { const item = coleccion[Number(boton.dataset.editar)]; imagen.value = item.imagenes.join("\n"); video.value = item.video || ""; link.value = item.link || ""; texto.value = item.texto || ""; editando = Number(boton.dataset.editar); document.getElementById("titulo-form-item").textContent = "Editando tarjeta"; document.getElementById("boton-guardar-item").textContent = "Guardar cambios"; document.getElementById("boton-cancelar-edicion").hidden = false; }); lista.querySelectorAll("[data-eliminar]").forEach((boton) => boton.onclick = async () => { if (!confirm("¿Eliminar esta tarjeta?")) return; coleccion.splice(Number(boton.dataset.eliminar), 1); try { await guardar(); renderTodo(); renderLista(); } catch (e) { alert("La sesión venció o no se pudo guardar el contenido."); } }); }
-      document.getElementById("boton-cerrar-sesion-admin").onclick = async () => { await fetch("/api/logout", { method: "POST", credentials: "same-origin" }); panel.classList.remove("abierto"); };
-      cargarContenido();
-    })();
-  </script>
+  <script src="content-model.js"></script>
+  <script src="editor.js"></script>
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {

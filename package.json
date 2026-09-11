@@ -4,6 +4,15 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node server.js",
-    "hash-password": "node hash-password.js"
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.112.4"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "jsdom": "27.4.0"
   }
 }
