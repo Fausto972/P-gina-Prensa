@@ -1,9 +1,0 @@
-{
-  "name": "informacion-global",
-  "private": true,
-  "version": "1.0.0",
-  "scripts": {
-    "start": "node server.js",
-    "hash-password": "node -e \"const crypto=require('crypto'); const password=process.argv[1]; if(!password) throw new Error('Uso: npm run hash-password -- TuClave'); const salt=crypto.randomBytes(16).toString('hex'); const hash=crypto.scryptSync(password,salt,64).toString('hex'); console.log('scrypt:'+salt+':'+hash);\""
-  }
-}
