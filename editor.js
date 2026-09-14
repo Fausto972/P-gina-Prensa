@@ -174,7 +174,8 @@
         const image = new Image(); const local = URL.createObjectURL(file);
         try { await new Promise((resolve, reject) => { image.onload = resolve; image.onerror = () => reject(new Error('El archivo no se puede abrir como imagen.')); image.src = local; }); }
         finally { URL.revokeObjectURL(local); }
-        const result = await api('/api/images', { method: 'POST', headers: { 'Content-Type': file.type }, body: file });
+        const uploadId = crypto.randomUUID(), chunkSize = 2 * 1024 * 1024, parts = Math.ceil(file.size / chunkSize); let result;
+        for (let part = 0; part < parts; part++) result = await api('/api/images', { method: 'POST', headers: { 'Content-Type': file.type, 'X-Upload-Id': uploadId, 'X-Upload-Part': String(part), 'X-Upload-Parts': String(parts) }, body: file.slice(part * chunkSize, Math.min(file.size, (part + 1) * chunkSize)) });
         $('input-imagen-url').value = [...imageList(), result.url].join('\n');
       }
       status('Imágenes subidas. Guardá la tarjeta para publicarlas.');

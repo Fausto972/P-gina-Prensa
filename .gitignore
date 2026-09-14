@@ -10,6 +10,8 @@ build/
 .venv/
 venv/
 node_modules/
+.netlify/
+deno.lock
 
 # Logs and temp files
 *.log
