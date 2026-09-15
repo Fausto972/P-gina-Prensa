@@ -10,6 +10,7 @@ test('Editor: carruseles por sección, imágenes, textos y errores de guardado',
   const dom = new JSDOM(html, { url: 'http://localhost:3000', runScripts: 'outside-only', pretendToBeVisual: true });
   t.after(() => dom.window.close());
   const w = dom.window, d = w.document, $ = id => d.getElementById(id);
+  assert.equal(d.querySelector('.recuperar-admin').href, 'https://acserp.org.ar/admin', 'password recovery points to web-acserp');
   const image = 'data:image/png;base64,iVBORw0KGgo=';
   let stored = Model.normalize({ diarios: [[{ imagenes: [image], texto: 'Original', link: '' }], [], []], entrevistas: [], noticieros: [] });
   let fail = false, uploaded = 0;

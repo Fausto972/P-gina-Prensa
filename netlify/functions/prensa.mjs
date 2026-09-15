@@ -17,6 +17,7 @@ function seal(value){const iv=crypto.randomBytes(12),cipher=crypto.createCipheri
 function unseal(value){try{const bytes=Buffer.from(value,'base64url'),decipher=crypto.createDecipheriv('aes-256-gcm',sessionKey(),bytes.subarray(0,12));decipher.setAuthTag(bytes.subarray(12,28));return JSON.parse(Buffer.concat([decipher.update(bytes.subarray(28)),decipher.final()]).toString());}catch{return null;}}
 function authClient(){return createClient(process.env.SUPABASE_URL,process.env.SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false},global:{fetch:(url,options)=>fetch(url,{...options,signal:AbortSignal.timeout(10000)})}});}
 const isAdmin=user=>user?.app_metadata?.role==='admin';
+const credentialErrors=new Set(['invalid_credentials','email_not_confirmed','user_banned']);
 function imageExtension(bytes){if(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])))return 'png';if(bytes[0]===255&&bytes[1]===216&&bytes[2]===255)return 'jpg';if(/^GIF8[79]a$/.test(bytes.subarray(0,6).toString()))return 'gif';if(bytes.subarray(0,4).toString()==='RIFF'&&bytes.subarray(8,12).toString()==='WEBP')return 'webp';return null;}
 
 async function requestJSON(request){if(Number(request.headers.get('content-length')||0)>JSON_LIMIT)throw Object.assign(new Error('El contenido supera el límite de Netlify.'),{status:413});const text=await request.text();if(Buffer.byteLength(text)>JSON_LIMIT)throw Object.assign(new Error('El contenido supera el límite de Netlify.'),{status:413});return JSON.parse(text);}
@@ -35,7 +36,8 @@ export default async function handler(request,context){
       const ip=context.ip||request.headers.get('x-nf-client-connection-ip')||'unknown';if(!await rateLimit(contentStore,'login:'+ip,20,15*60*1000))return error('Demasiados intentos. Probá más tarde.',429);
       const body=await requestJSON(request);if(typeof body.email!=='string'||typeof body.password!=='string'||!body.email.trim()||!body.password)return error('Correo o contraseña incorrectos.',401);
       const client=authClient(),{data, error:loginError}=await client.auth.signInWithPassword({email:body.email.trim(),password:body.password});
-      if(loginError||!data.session)return error('Supabase rechazó el correo o la contraseña.',401);if(!isAdmin(data.user))return error('Tu cuenta no tiene permisos de administrador.',403);
+      if(loginError){const code=loginError.code||'auth_unavailable';console.warn('[auth/login]',code,loginError.status||'');if(code==='over_request_rate_limit'||code==='over_email_send_rate_limit'||loginError.status===429)return error('Demasiados intentos. Esperá unos minutos antes de volver a ingresar.',429);if(credentialErrors.has(code))return error('Supabase rechazó el correo o la contraseña. Usá las credenciales actuales de la web de ACSERP.',401);return error('No se pudo conectar con Supabase. Verificá SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en Netlify.',502);}
+      if(!data.session)return error('Supabase no devolvió una sesión válida.',502);if(!isAdmin(data.user))return error('Tu cuenta no tiene permisos de administrador.',403);
       const until=Date.now()+SESSION_TTL,token=seal({access:data.session.access_token,refresh:data.session.refresh_token,userId:data.user.id,until});return json({ok:true},200,{'Set-Cookie':cookie(token,local,SESSION_TTL/1000)});
     }
     if(request.method==='POST'&&url.pathname==='/api/logout')return json({ok:true},200,{'Set-Cookie':cookie('',local,0)});

@@ -66,7 +66,9 @@ test('Acceso editorial con Supabase y archivos privados', async (t) => {
   const wrong = await login('wrong');
   assert.equal(wrong.status, 401);
   assert.match((await wrong.json()).error, /Supabase rechazó/);
-  assert.equal((await login('provider-error')).status, 502, 'service errors are not credential errors');
+  const providerError = await login('provider-error');
+  assert.equal(providerError.status, 502, 'service errors are not credential errors');
+  assert.match((await providerError.json()).error, /Verificá que \.env tenga SUPABASE_URL/);
   role = 'member'; assert.equal((await login()).status, 403, 'user_metadata cannot grant admin');
   role = 'admin';
   const signedIn = await login(); assert.equal(signedIn.status, 200);

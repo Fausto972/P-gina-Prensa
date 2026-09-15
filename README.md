@@ -15,6 +15,8 @@ Al pie de la página, seleccioná **Acceso editorial** e ingresá con el mismo c
 
 Ambos sitios comparten la cuenta y la contraseña, pero mantienen sesiones independientes: iniciar sesión en uno no abre automáticamente el otro. Para recuperar la contraseña, usá la opción de recuperación de la web de ACSERP.
 
+Si el login local informa que no pudo conectarse con Supabase, no es un rechazo de las credenciales. Comprobá que `.env` exista, que no conserve los valores de ejemplo y que `SUPABASE_URL` y `SUPABASE_PUBLISHABLE_KEY` coincidan exactamente con `VITE_SUPABASE_URL` y `VITE_SUPABASE_PUBLISHABLE_KEY` de `web-acserp`; luego reiniciá `npm start`. La cuenta no necesita acceso al panel de Supabase para ingresar: sí necesita que el servidor local apunte al mismo proyecto y tenga conexión a Internet.
+
 La contraseña se valida en Supabase. Los tokens quedan en memoria del servidor; el navegador recibe una cookie `HttpOnly`, `SameSite=Lax`, con duración máxima de 8 horas. Cada guardado vuelve a consultar el usuario y su rol en Supabase, y el cliente renueva los tokens cuando corresponde. Reiniciar el servidor requiere volver a ingresar. Cerrar sesión revoca únicamente la sesión de prensa.
 
 Las noticias siguen guardándose en `content.json` de este proyecto; no se mezclan con el contenido de `web-acserp`. La API de escritura exige sesión y valida tamaños y estructura. El servidor no publica `.env`, archivos del backend ni dependencias.

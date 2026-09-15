@@ -19,9 +19,14 @@ const sessions = new Map();
 const attempts = new Map();
 const staticTypes = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.pdf': 'application/pdf', '.mp4': 'video/mp4', '.gif': 'image/gif', '.webp': 'image/webp', '.avif': 'image/avif' };
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error('Configurá SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en .env antes de iniciar.');
+if (!usableSupabaseConfig(SUPABASE_URL, SUPABASE_KEY)) {
+  console.error('Configurá SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY en .env con los valores de web-acserp antes de iniciar. No uses los textos de ejemplo.');
   process.exit(1);
+}
+
+function usableSupabaseConfig(url, key) {
+  if (!url || !key || /tu-proyecto|reemplazar/i.test(`${url} ${key}`)) return false;
+  try { return Boolean(new URL(url).hostname); } catch { return false; }
 }
 
 function newAuthClient() {
@@ -149,7 +154,7 @@ async function route(request, response) {
         return send(response, 429, { error: 'Demasiados intentos. Esperá unos minutos antes de volver a ingresar.' });
       }
       if (code !== 'invalid_credentials' && code !== 'email_not_confirmed' && code !== 'user_banned') {
-        return send(response, 502, { error: 'No se pudo conectar con el servicio de acceso. Probá nuevamente en unos momentos.' });
+        return send(response, 502, { error: 'No se pudo conectar con Supabase. Verificá que .env tenga SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY de web-acserp, reiniciá el servidor y comprobá la conexión a Internet.' });
       }
       current.count += 1;
       if (current.count >= 5) { current.count = 0; current.until = Date.now() + 15 * 60 * 1000; }
