@@ -701,5 +701,42 @@
       });
     })();
   </script>
+     <!-- AGREGAR ESTO AL FINAL DE pagina-independiente_4.html -->
+<script>
+    // Lógica de desbloqueo "Easter Egg"
+    let keySequence = "";
+    const secretKey = "veritas";
+    
+    document.addEventListener('keydown', (e) => {
+        keySequence += e.key;
+        if (keySequence.length > secretKey.length) {
+            keySequence = keySequence.slice(-secretKey.length);
+        }
+        
+        if (keySequence === secretKey) {
+            const pass = prompt("🔒 SISTEMA DETECTADO\nIngrese contraseña de acceso al Portal Secreto:");
+            if (pass === "portal2026") {
+                alert("✅ ACCESO CONCEDIDO\nRedirigiendo a Archivos Clasificados...");
+                window.location.href = "top-secret.html?access=granted";
+            } else {
+                alert("❌ CONTRASEÑA INCORRECTA");
+            }
+            keySequence = "";
+        }
+    });
+
+    // Botón oculto para ir directo al admin (opcional, para pruebas)
+    // Haz triple clic en el título de la página 4 para ir al admin
+    let clickCount = 0;
+    document.querySelector('h1')?.addEventListener('click', () => {
+        clickCount++;
+        if(clickCount === 3) {
+            const adminPass = prompt("Admin Access:");
+            if(adminPass === "admin123") window.location.href = "admin/editor.html";
+            clickCount = 0;
+        }
+        setTimeout(() => clickCount = 0, 1000);
+    });
+</script>
 </body>
 </html>
