@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Local - Top Secret</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; margin: 0; display: flex; height: 100vh; }
+        #login-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#333; z-index:999; display:flex; justify-content:center; align-items:center; flex-direction:column; color:white; }
+        #login-screen input { padding: 10px; margin: 10px; font-size: 16px; }
+        #login-screen button { padding: 10px 20px; background: #d32f2f; color: white; border: none; cursor: pointer; font-size: 16px; }
+        
+        .sidebar { width: 250px; background: #2c3e50; color: white; padding: 20px; display: flex; flex-direction: column; }
+        .sidebar h2 { margin-top: 0; color: #e74c3c; }
+        .sidebar button { background: none; border: none; color: #bdc3c7; text-align: left; padding: 10px; width: 100%; cursor: pointer; font-size: 16px; }
+        .sidebar button:hover, .sidebar button.active { background: #34495e; color: white; border-left: 4px solid #e74c3c; }
+        
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        
+        .editor-group { background: white; padding: 20px; margin-bottom: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .editor-group h3 { margin-top: 0; color: #d32f2f; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        
+        .item-editor { border: 1px solid #ddd; padding: 15px; margin-bottom: 15px; background: #fafafa; }
+        .item-editor input, .item-editor textarea { width: 100%; margin-bottom: 10px; padding: 8px; box-sizing: border-box; }
+        .item-editor img { max-width: 100px; display: block; margin-bottom: 10px; }
+        
+        .btn { padding: 8px 15px; border: none; cursor: pointer; border-radius: 3px; }
+        .btn-save { background: #27ae60; color: white; font-size: 18px; padding: 15px 30px; position: fixed; bottom: 20px; right: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-add { background: #2980b9; color: white; margin-top: 10px; }
+        .btn-del { background: #c0392b; color: white; float: right; }
+        
+        .map-point-editor { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+    </style>
+</head>
+<body>
+
+    <!-- Login Simulado -->
+    <div id="login-screen">
+        <h2>Acceso Administrativo</h2>
+        <p>Sistema Local (Sin Base de Datos)</p>
+        <input type="password" id="admin-pass" placeholder="Contraseña (admin123)">
+        <button onclick="checkLogin()">Ingresar</button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>ADMIN PANEL</h2>
+        <button onclick="showPanel('panel-notas')" class="active">📝 Notas</button>
+        <button onclick="showPanel('panel-docs')">📂 Documentos</button>
+        <button onclick="showPanel('panel-imgs')">📷 Imágenes</button>
+        <button onclick="showPanel('panel-mapa')">🗺️ Mapa Global</button>
+        <button onclick="window.location.href='../top-secret.html'" style="margin-top:auto; color:#e74c3c;">Ver Sitio →</button>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <h1>Editor de Contenidos Top Secret</h1>
+        <p>Los cambios se guardan en el navegador localmente.</p>
+
+        <!-- Panel Notas -->
+        <div id="panel-notas" class="panel active">
+            <div class="editor-group" id="list-notas"></div>
+            <button class="btn btn-add" onclick="addItem('notes')">+ Agregar Nota</button>
+        </div>
+
+        <!-- Panel Documentos -->
+        <div id="panel-docs" class="panel">
+            <div class="editor-group" id="list-docs"></div>
+            <button class="btn btn-add" onclick="addItem('docs')">+ Agregar Documento</button>
+        </div>
+
+        <!-- Panel Imágenes -->
+        <div id="panel-imgs" class="panel">
+            <div class="editor-group" id="list-imgs"></div>
+            <button class="btn btn-add" onclick="addItem('images')">+ Agregar Imagen</button>
+        </div>
+
+        <!-- Panel Mapa -->
+        <div id="panel-mapa" class="panel">
+            <div class="editor-group">
+                <h3>Puntos en el Mapa</h3>
+                <p>Ajusta Top (%) y Left (%) para mover los puntos rojos.</p>
+                <div id="list-mapa"></div>
+                <button class="btn btn-add" onclick="addMapPoint()">+ Agregar Punto</button>
+            </div>
+        </div>
+
+        <button class="btn btn-save" onclick="saveAll()">💾 GUARDAR CAMBIOS</button>
+    </div>
+
+    <script>
+        // --- LÓGICA DEL EDITOR ---
+        let currentData = {};
+
+        function checkLogin() {
+            const pass = document.getElementById('admin-pass').value;
+            if(pass === 'admin123') { // Contraseña simple para local
+                document.getElementById('login-screen').style.display = 'none';
+                loadData();
+            } else {
+                alert('Contraseña incorrecta');
+            }
+        }
+
+        function loadData() {
+            const stored = localStorage.getItem('topSecretData');
+            const defaultData = {
+                notes: [], docs: [], images: [], mapPoints: []
+            };
+            currentData = stored ? JSON.parse(stored) : defaultData;
+            
+            // Asegurar que existan los arrays
+            if(!currentData.notes) currentData.notes = [];
+            if(!currentData.docs) currentData.docs = [];
+            if(!currentData.images) currentData.images = [];
+            if(!currentData.mapPoints) currentData.mapPoints = [];
+
+            renderEditors();
+        }
+
+        function showPanel(id) {
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.sidebar button').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function renderEditors() {
+            renderList('list-notas', currentData.notes, 'notes');
+            renderList('list-docs', currentData.docs, 'docs');
+            renderList('list-imgs', currentData.images, 'images');
+            renderMapEditor();
+        }
+
+        function renderList(containerId, items, type) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'item-editor';
+                div.innerHTML = `
+                    <button class="btn btn-del" onclick="deleteItem('${type}', ${index})">X</button>
+                    <label>Título:</label>
+                    <input type="text" value="${item.title || ''}" onchange="updateItem('${type}', ${index}, 'title', this.value)">
+                    <label>Descripción:</label>
+                    <textarea rows="3" onchange="updateItem('${type}', ${index}, 'desc', this.value)">${item.desc || ''}</textarea>
+                    <label>Imagen (URL o Base64):</label>
+                    <input type="text" value="${item.img || ''}" onchange="updateItem('${type}', ${index}, 'img', this.value)" placeholder="Pega URL o usa el input de abajo">
+                    <input type="file" accept="image/*" onchange="handleImageUpload(this, '${type}', ${index})">
+                    ${item.img ? '<img src="'+item.img+'">' : ''}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderMapEditor() {
+            const container = document.getElementById('list-mapa');
+            container.innerHTML = '';
+            currentData.mapPoints.forEach((point, index) => {
+                const div = document.createElement('div');
+                div.className = 'map-point-editor';
+                div.innerHTML = `
+                    <span>Punto ${index + 1}:</span>
+                    <input type="number" value="${parseFloat(point.top)}" style="width:60px" onchange="updateMapPoint(${index}, 'top', this.value)"> % Top
+                    <input type="number" value="${parseFloat(point.left)}" style="width:60px" onchange="updateMapPoint(${index}, 'left', this.value)"> % Left
+                    <button class="btn btn-del" onclick="deleteMapPoint(${index})">X</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- FUNCIONES DE ACTUALIZACIÓN ---
+        window.updateItem = (type, index, field, value) => {
+            currentData[type][index][field] = value;
+        };
+
+        window.deleteItem = (type, index) => {
+            if(confirm('¿Eliminar este elemento?')) {
+                currentData[type].splice(index, 1);
+                renderEditors();
+            }
+        };
+
+        window.addItem = (type) => {
+            currentData[type].push({ title: "Nuevo Item", desc: "Descripción...", img: "" });
+            renderEditors();
+        };
+
+        window.handleImageUpload = (input, type, index) => {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    currentData[type][index].img = reader.result; // Guardar como Base64
+                    renderEditors(); // Re-render para mostrar preview
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+
+        // --- MAPA ---
+        window.updateMapPoint = (index, coord, value) => {
+            currentData.mapPoints[index][coord] = value + '%';
+        };
+
+        window.addMapPoint = () => {
+            currentData.mapPoints.push({ top: '50%', left: '50%' });
+            renderMapEditor();
+        };
+
+        window.deleteMapPoint = (index) => {
+            currentData.mapPoints.splice(index, 1);
+            renderMapEditor();
+        };
+
+        // --- GUARDAR ---
+        window.saveAll = () => {
+            localStorage.setItem('topSecretData', JSON.stringify(currentData));
+            alert('¡Cambios guardados en el navegador! Ve a top-secret.html para verlos.');
+        };
+    </script>
+</body>
+</html>
